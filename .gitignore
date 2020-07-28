@@ -1,0 +1,12 @@
+node_modules
+
+yarn-error.log
+
+chatcola.nedb-*
+
+*.env
+*.pem
+
+build
+
+chatcola.json

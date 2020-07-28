@@ -1,0 +1,11 @@
+  config:
+    target: "wss://chatcola.art-c.tech/s/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzbHVnIjoiZjgyMTc1MTEtN2QxMC00OTExLThkZTktZTZiNjRiYjRmMjM0IiwibmFtZSI6IkBhbnRvbmkiLCJ0eXBlIjoidXNlciIsImlhdCI6MTU5MjM5ODIxN30.OKhic9tt8CulCfFJb4CLIa5Pcx39fxTspsnIcTBUnUc"
+    phases:
+      - duration: 10
+        arrivalRate: 50
+  scenarios:
+    - engine: "ws"
+      flow:
+        - loop: 
+            - send: '{ "type": "message", "data": { "content": "ejj jsdf nsdfj sdfjndfsj njnj sdf" } }'
+            - think: 5
