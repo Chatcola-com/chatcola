@@ -4,17 +4,36 @@
 
 This repository hosts the chatcola server needed to self-host reliance and storage of your messaging.
 
-
-
 # Getting started
-
-
 
 ## What you'll need
 
-* ### a linux computer with a public IP and shell access. (`sudo` is not required)
+* ### a linux computer (probably a VPS) with a public IP and shell access. (`sudo` is not required, but simplifies things masivelly as shown below)
 
-## Steps
+### Steps - WITH SUDO ACCESS
+
+### 1. [ Install docker ](https://docs.docker.com/get-docker/)
+
+### 2. Pull our docker image
+
+```bash
+$ sudo docker pull chatcola/chatcola
+```
+
+### 3. Obtain a domain and a certificate (look steps 2 and 3 below in "Steps - WITHOUT SUDO ACCESS") and copy them to a directory of your choice - for example into `/opt/chatcola`
+
+### 4. Run the container
+
+```bash
+$ sudo docker run -e THIS_INSTANCE_ADDRESS="<YOUR DOMAIN>:7777" \
+    -v /opt/chatcola:/app/assets chatcola/chatcola
+```
+
+## Note that you have to replace `/opt/chatcola` with the directory you moved your certificates to in step 3.
+
+
+
+## Steps - WITHOUT SUDO ACCESS.
 
 ### 1. Install chatcola on your server
 
@@ -65,8 +84,6 @@ your-directory/
         ├────/privkey.pem   // <-------------------------
 ```
 
-
-
 ## You've gone a long way! There's one last thing, you'll need an environment variable file, create a `production.env` file in `assets`:
 
 ```filesystem
@@ -82,35 +99,29 @@ your-directory/
 ## It has to look like this:
 
 ```env
-PORT=7777
-
-JWT_SECRET=<SOME---LONG---RANDOM---STRING>
+PORT=7777   // <---- this is optional
 
 THIS_INSTANCE_ADDRESS=<YOUR DOMAIN NAME WITH PORT>
 
-SHOULD_REPORT_ERRORS=true
+SHOULD_REPORT_ERRORS=true    // < ---- this is optional
 ```
-
-* ### `PORT` is the port you are exposing on your machine. It has to be higher than 1000.
-
-* ### `JWT_SECRET` is a random string to encode your user's tokens. [You can generate it here](https://www.browserling.com/tools/random-string) or by hitting your keyboard.
 
 * ### `THIS_INSTANCE_ADDRESS`  is your domain name with the port attached to it.
   
   # __**The PORT is really important to include.**__
 
-* ### `SHOULD_REPORT_ERRORS` This will only be turned on if set to `true`. It will send a crash report to our [Sentry](https://github.com/getsentry/sentry) and help us fix bugs earlier, but this is 100% optional for you to enable - no value will be lost from your instance.
+* ### `PORT` is the port you are exposing on your machine. It has to be higher than 1000. *This is not required, default is `7777`*
+
+* ### `SHOULD_REPORT_ERRORS` Set this to "false" if you wish to opt out. It will send a crash report to our [Sentry](https://github.com/getsentry/sentry) and help us fix bugs earlier, but this is 100% optional for you to enable - no value will be lost from your instance.
   
   ## For example:
   
   ```env
-  PORT=7777
-  
-  JWT_SECRET=dfiojafiouusaioufuiodfguiosduui8u345893489revs89eh89sdhfjuishduihadfsiufhdsiuhfdsuiahfdiusahuifsdahuisdafhuiasdfhuisdfh
+  PORT=7777   // <----- if this is not specified, then it will be 7777
   
   THIS_INSTANCE_ADDRESS=chatcolainstance.example.com:7777 <---- NOTICE THE PORT
   
-  SHOULD_REPORT_ERRORS=true
+  SHOULD_REPORT_ERRORS=false
   ```
 
 # 5. Starting the server
@@ -136,7 +147,7 @@ SHOULD_REPORT_ERRORS=true
 
 ### Beyond starting
 
-<p>You'll probably need some sort of program to keep your instance running forever. What we recommend is [ PM2 ](https://npmjs.com/package/pm2). To install it run: 
+<p>You'll probably need some sort of program to keep your instance running forever. What we recommend is [ PM2 ](https://npmjs.com/package/pm2). To install it run:
 
 ```bash
 $ cd chatcola-server
