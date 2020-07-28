@@ -2,14 +2,14 @@ FROM node:14
 
 WORKDIR /chatcola
 
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
-RUN npm install
+RUN yarn install
 
 COPY . .
 RUN ls
 
-RUN npm run build
+RUN yarn build
 
 
 
