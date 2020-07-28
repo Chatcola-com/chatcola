@@ -37,7 +37,7 @@ $ sudo docker run -e THIS_INSTANCE_ADDRESS="<YOUR DOMAIN>:7777" \
 
 ### 1. Install chatcola on your server
 
-## You can either build the sources yourself or [download the latest build](https://github.com/chatcola-com/chatcola/). Then, copy the `build` and `assets` directories as shown:
+## You can either build the sources yourself or [download the latest build](https://github.com/chatcola-com/chatcola/). The build has the following file structure:
 
 ```filesystem
 your-directory/       #"your-directory" can be anywhere on your system
@@ -84,7 +84,7 @@ your-directory/
         ├────/privkey.pem   // <-------------------------
 ```
 
-## You've gone a long way! There's one last thing, you'll need an environment variable file, create a `production.env` file in `assets`:
+## You've gone a long way! There's one last thing, you'll need an environment variable file, head over to the `production.env` file in `assets` directory
 
 ```filesystem
 your-directory/
@@ -96,14 +96,14 @@ your-directory/
 |       ├────/production.env // <------------------------
 ```
 
-## It has to look like this:
+## It looks like this:
 
 ```env
 PORT=7777   // <---- this is optional
 
 THIS_INSTANCE_ADDRESS=<YOUR DOMAIN NAME WITH PORT>
 
-SHOULD_REPORT_ERRORS=true    // < ---- this is optional
+SHOULD_REPORT_ERRORS=true    // < ---- set to false if needed
 ```
 
 * ### `THIS_INSTANCE_ADDRESS`  is your domain name with the port attached to it.
