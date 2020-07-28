@@ -8,6 +8,8 @@ import { HttpResponse, HttpRequest } from "uWebSockets.js";
 import { Container } from "typedi";
 import { TLogger, IKeyService } from "../../../../types/infrastructure";
 
+import thirdPartyLicenses from "../../../../../third-party-licenses.json";
+
 const Logger = Container.get<TLogger>("logger");
 
 const keyService = Container.get<IKeyService>("keyservice");
@@ -44,8 +46,14 @@ const getPublicRSAKey = async (res: HttpResponse, req: HttpRequest) => {
     }));
 }
 
+async function getLicenses(res: HttpResponse, req: HttpRequest) {
+
+    res.end(JSON.stringify(thirdPartyLicenses))
+}
+
 export default {
     fourOhFour, 
     options,
-    getPublicRSAKey
+    getPublicRSAKey,
+    getLicenses
 }

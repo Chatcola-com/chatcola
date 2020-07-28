@@ -149,4 +149,4 @@ Now your server will restart after crashes and wont exit when you leave ssh.
 
 [forever](https://www.npmjs.com/search?q=forever) is a good alternative to pm2. 
 
-< /p>
+</p>

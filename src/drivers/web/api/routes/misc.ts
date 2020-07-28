@@ -17,5 +17,9 @@ export default (app: TemplatedApp) => {
 
     app.get(`/api/publicRSAKey`, carousel([
         Controller.getPublicRSAKey
+    ]));
+
+    app.get(`/licenses`, carousel([
+        Controller.getLicenses
     ]))
 }
