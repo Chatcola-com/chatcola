@@ -8,7 +8,7 @@ import { HttpResponse, HttpRequest } from "uWebSockets.js";
 import { Container } from "typedi";
 import { TLogger, IKeyService } from "../../../../types/infrastructure";
 
-import thirdPartyLicenses from "../../../../../third-party-licenses.json";
+import thirdPartyLicenses from "../../../../third-party-licenses.json";
 
 const Logger = Container.get<TLogger>("logger");
 

@@ -136,7 +136,7 @@ SHOULD_REPORT_ERRORS=true
 
 ### Beyond starting
 
-<p>You'll probably need some sort of program to keep your instance running forever. What we recommend is [ PM2 ]( https://npmjs.com/package/pm2 ). To install it run: 
+<p>You'll probably need some sort of program to keep your instance running forever. What we recommend is [ PM2 ](https://npmjs.com/package/pm2). To install it run: 
 
 ```bash
 $ cd chatcola-server
@@ -147,6 +147,6 @@ $ ./node_modules/.bin/pm2 start ecosystem.config.js
 
 Now your server will restart after crashes and wont exit when you leave ssh.
 
-[forever](https://www.npmjs.com/search?q=forever) is a good alternative to pm2. 
+[forever](https://www.npmjs.com/package/forever) is a good alternative to pm2. 
 
 </p>

@@ -35,7 +35,7 @@
   "scripts": {
     "test": "jest",
     "dev": "cross-env NODE_ENV=development nodemon",
-    "build": "ncc build -s ./src/drivers/web/index.ts -o build && cp LICENSE.md third-party-licenses.json ecosystem.config.js ./node_modules/**/*.node ./build",
+    "build": "ncc build -s ./src/drivers/web/index.ts -o build && cp LICENSE.md src/third-party-licenses.json ecosystem.config.js ./node_modules/**/*.node ./build",
     "deploy": "./scripts/deploy"
   },
   "dependencies": {
