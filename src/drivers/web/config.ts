@@ -8,8 +8,7 @@ import appRoot from "app-root-path";
 import fs from "fs";
 
 if(!process.env.PORT)
-  throw new Error(`Please specify PORT in ${process.env.NODE_ENV?.toLowerCase()}.env file`);
-
+  process.env.PORT = "7777";
 
 const isProd = ["staging", "production"].includes(process.env.NODE_ENV?.toLowerCase() || "");
 

@@ -16,7 +16,7 @@ const db = low(adapter)
 
 db.defaults({}).write();
 
-const statisticsDatabase: TKeyValueStore = {
+const keyValueStore: TKeyValueStore = {
     getItem(key: string) {
         try {
             return JSON.parse(db.get(key).value());
@@ -30,4 +30,4 @@ const statisticsDatabase: TKeyValueStore = {
     }
 } 
 
-export default statisticsDatabase;
+export default keyValueStore;

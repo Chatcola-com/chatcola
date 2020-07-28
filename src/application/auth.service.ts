@@ -5,11 +5,9 @@
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import jwt from "jsonwebtoken";
 
-import { Service, Inject } from "typedi";
+import { Container, Service, Inject } from "typedi";
 import { TUserCredentials, TAdminCredentials, ITokenClaims } from "../types/auth";
 import { AppError } from "../infrastructure/utils";
-
-import config from "../infrastructure/config";
 
 import { TChatroomRepository } from "../types/infrastructure";
 
@@ -111,9 +109,13 @@ export default class AuthService {
 /**
  * --------------------------------<-utility functions, might migrate to separate infrastructure service later->--------------------------------------
  */
+
+
 const verifyToken = (token: string): any => {
+    const jwtSecret = Container.get<string>("jwtSecret");
+
     try {
-        const claims: any = jwt.verify(token, config.jwtSecret);
+        const claims: any = jwt.verify(token, jwtSecret);
 
         return claims;
     }
@@ -123,8 +125,10 @@ const verifyToken = (token: string): any => {
 }
 
 const signToken = (claims: { [key: string]: any }): Promise<string> => {
+    const jwtSecret = Container.get<string>("jwtSecret");
+
     return new Promise<string>( (resolve, reject) => {
-        jwt.sign( claims , config.jwtSecret, function(err: any, token: any) {
+        jwt.sign( claims , jwtSecret, function(err: any, token: any) {
             if(err)
                 reject(err);
             else

@@ -20,7 +20,11 @@ import keyValueStore from "./db/keyValue";
 
 import resolveDatabase from "./db";
 import KeyService from "./keys";
+import initJwtSecret from "./jwt";
 import { IKeyService } from "types/infrastructure";
+
+const jwtSecret = initJwtSecret(keyValueStore);
+Container.set("jwtSecret", jwtSecret);
 
 Container.set("logger", Logger);
 Container.set("eventEmitter", eventEmitter);

@@ -17,22 +17,15 @@ const assetsPath = path.resolve(
 
 const dotenvPath = path.resolve(assetsPath, process.env.NODE_ENV.toLowerCase()+".env");
 
-const envFound = dotenv.config({
+dotenv.config({
   path: dotenvPath
 });
-
-
-if (envFound.error) 
-  throw new Error(`⚠️  Couldn't find ${process.env.NODE_ENV.toLowerCase()}.env file at path ${dotenvPath} ⚠️`);
 
 if(process.env.DATABASE === "mongo" && !process.env.MONGO_URI)
   throw new Error(`Please specify MONGO_URI in ${dotenvPath} or change DATABASE .env variable to "nedb"`);
 
-if(!process.env.JWT_SECRET)
-  throw new Error(`Please specify JWT_SECRET in ${dotenvPath}`);
-
 if(!process.env.THIS_INSTANCE_ADDRESS)
-  throw new Error(`Please specify THIS_INSTANCE_ADDRESS in ${dotenvPath}`);
+  throw new Error(`Please specify THIS_INSTANCE_ADDRESS with cross-env or with -e flag if using docker`);
 
 export default {
     database: getPrefferedDatabaseType(),
@@ -44,10 +37,8 @@ export default {
     //A few files will be resolved from NEDB path - chatcola.nedb-chatrooms and chatcola.nedb-messages. 
     //It's rather a filename template, not a directory.
     nedbPath: path.resolve(assetsPath, "chatcola.nedb"),
-
-    jwtSecret: process.env.JWT_SECRET,
     
-    should_report_errors: Boolean(process.env.SHOULD_REPORT_ERRORS === "true"),
+    should_report_errors: Boolean(process.env.SHOULD_REPORT_ERRORS !== "false"),
 
     delegator_url: getDelegatorUrl(),
 
