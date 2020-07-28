@@ -1,5 +1,11 @@
 # Chatcola server
 
+![Docker Automated build](https://img.shields.io/docker/automated/chatcola/chatcola)
+
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/chatcola/chatcola)
+
+
+
 ---
 
 This repository hosts the chatcola server needed to self-host reliance and storage of your messaging.
@@ -30,8 +36,6 @@ $ sudo docker run -e THIS_INSTANCE_ADDRESS="<YOUR DOMAIN>:7777" \
 ```
 
 ## Note that you have to replace `/opt/chatcola` with the directory you moved your certificates to in step 3.
-
-
 
 ## Steps - WITHOUT SUDO ACCESS.
 
