@@ -2,7 +2,7 @@
 
 ---
 
-This repository hosts the chatcola server needed to self-host relianace and storage of your messaging.
+This repository hosts the chatcola server needed to self-host reliance and storage of your messaging.
 
 
 
