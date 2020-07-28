@@ -33,7 +33,7 @@ your-directory/       #"your-directory" can be anywhere on your system
 
 ###### If you already have a domain that is pointing to your VPS, then you can skip this step.
 
-## To get a free domain name head over to one of these websites:
+#### To get a free domain name head over to one of these websites:
 
 * ### [Freenom.com](https://www.freenom.com/en/index.html?lang=en)
 
