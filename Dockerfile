@@ -8,7 +8,8 @@ RUN yarn install
 
 COPY . .
 
-RUN yarn build
+RUN chmod +x ./scripts/build
+RUN ./scripts/build
 
 RUN npm install -g pm2
 
