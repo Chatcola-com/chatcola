@@ -1,6 +1,6 @@
 # Chatcola server
 
-  <p align="center">
+<p align="center">
     <a href="https://hub.docker.com/repository/docker/chatcola/chatcola" alt="Docker image">
         <img src="https://img.shields.io/docker/automated/chatcola/chatcola" />
     </a>
@@ -11,7 +11,6 @@
 
 ---
 
-
 This repository hosts the chatcola server needed to self-host reliance and storage of your messaging.
 
 # Getting started
@@ -20,55 +19,69 @@ This repository hosts the chatcola server needed to self-host reliance and stora
 
 * ### a linux computer (probably a VPS) with a public IP and shell access. (`sudo` is not required, but simplifies things masivelly as shown below)
 
-### Steps - WITH SUDO ACCESS
+
+
+# Installing chatcola
+
+### Steps - without docker
+
+#### 1. Install node.js version 14.4.0 or later if you haven't yet
+
+To verify you have node on your machine run:
+
+```bash
+node -v
+```
+
+If the output is `v14.4.0` or higher, you can skip this step.
+
+
+
+To install node run:
+
+```bash
+  $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+  $ nvm install 14.4.0
+```
+
+### 2. Install chatcola-server:
+
+```bash
+npm install -g chatcola-server### Steps - with `sudo`
+```
+
+## Steps - with docker
 
 ### 1. [ Install docker ](https://docs.docker.com/get-docker/)
 
 ### 2. Pull our docker image
 
 ```bash
-$ sudo docker pull chatcola/chatcola
+sudo docker pull chatcola/chatcola
 ```
 
-### 3. Obtain a domain and a certificate (look steps 2 and 3 below in "Steps - WITHOUT SUDO ACCESS") and copy them to a directory of your choice - for example into `/opt/chatcola`
 
-### 4. Run the container
 
 ```bash
-$ sudo docker run -e THIS_INSTANCE_ADDRESS="<YOUR DOMAIN>:7777" \
+sudo docker run -e THIS_INSTANCE_ADDRESS="<YOUR DOMAIN>:7777" \
     -v /opt/chatcola:/app/assets chatcola/chatcola
 ```
 
-## Note that you have to replace `/opt/chatcola` with the directory you moved your certificates to in step 3.
+# Preparing SSL encryption
 
-## Steps - WITHOUT SUDO ACCESS.
+### You need 2 things to start a chatcola instance, both of them you can get for free:
 
-### 1. Install chatcola on your server
+* #### A domain name
 
-## You can either build the sources yourself or [download the latest build](https://github.com/chatcola-com/chatcola/). The build has the following file structure:
+Having a domain is necessary to provide SSL encryption.
 
-```filesystem
-your-directory/       #"your-directory" can be anywhere on your system
-├── chatcola-server/
-│   ├── build/
-│   ├── assets/
-```
+If you already have a domain that is pointing to your VPS, then you can skip this step.
 
-### 2. Get a (free) domain name
+##### To get a free domain name head over to [Freenom.com](https://www.freenom.com/en/index.html?lang=en)
 
-#### Having a domain is necessary to provide SSL encryption.
+* #### Get a SSL certificate
 
-###### If you already have a domain that is pointing to your VPS, then you can skip this step.
-
-#### To get a free domain name head over to one of these websites:
-
-* ### [Freenom.com](https://www.freenom.com/en/index.html?lang=en)
-
-## 3. Get a (free!) SSL certificate
-
-### Head over to [Certbot - Certbot Instructions](https://certbot.eff.org/instructions)
-
-### To get a free certificate. Once you are done, something like this will show up:
+#### Head over to [Certbot - Certbot Instructions](https://certbot.eff.org/instructions) To get a free certificate. Once you are done, something like this will show up:
 
 ```textile
 - Congratulations! Your certificate and chain have been saved at:
@@ -77,95 +90,55 @@ your-directory/       #"your-directory" can be anywhere on your system
    /etc/letsencrypt/live/<YOUR DOMAIN NAME>/privkey.pem < -----------
 ```
 
-### You'll need these files (`fullchain.pem` and `privkey.pem` ) in the next step.
+### You'll need these files (`fullchain.pem` and `privkey.pem` ). Copy them to chatcola assets directory, which lives in `~/.chatcola/`
 
-## 4. Set up assets and environment variables
+ ---
 
-### Head back to the directory you installed chatcola in  ("`chatcola-server`" in step #1) and copy the certificates from step 3:
-
-```filesystem
-your-directory/
-├── chatcola-server/
-│   ├── build/
-│   ├── assets/
-|       ├────/fullchain.pem // <-------------------------
-        ├────/privkey.pem   // <-------------------------
-```
-
-## You've gone a long way! There's one last thing, you'll need an environment variable file, head over to the `production.env` file in `assets` directory
+### At this point you should have already installed chatcola and prepared your home directory to look like so:
 
 ```filesystem
-your-directory/
-├── chatcola-server/
-│   ├── build/
-│   ├── assets/
-|       ├────/fullchain.pem
-|       ├────/privkey.pem
-|       ├────/production.env // <------------------------
+/home/<your-username>/
+├── .chatcola/ # <----- notice the dot
+│   ├── privkey.pem
+|   ├── fullchain.pem
 ```
 
-## It looks like this:
+### You are now ready to launch the chatcola server.
 
-```env
-PORT=7777   // <---- this is optional
-
-THIS_INSTANCE_ADDRESS=<YOUR DOMAIN NAME WITH PORT>
-
-SHOULD_REPORT_ERRORS=true    // < ---- set to false if needed
-```
-
-* ### `THIS_INSTANCE_ADDRESS`  is your domain name with the port attached to it.
+* If you are using docker, then run:
   
-  # __**The PORT is really important to include.**__
-
-* ### `PORT` is the port you are exposing on your machine. It has to be higher than 1000. *This is not required, default is `7777`*
-
-* ### `SHOULD_REPORT_ERRORS` Set this to "false" if you wish to opt out. It will send a crash report to our [Sentry](https://github.com/getsentry/sentry) and help us fix bugs earlier, but this is 100% optional for you to enable - no value will be lost from your instance.
-  
-  ## For example:
-  
-  ```env
-  PORT=7777   // <----- if this is not specified, then it will be 7777
-  
-  THIS_INSTANCE_ADDRESS=chatcolainstance.example.com:7777 <---- NOTICE THE PORT
-  
-  SHOULD_REPORT_ERRORS=false
+  ```bash
+  sudo docker run -d-p <YOUR-PORT>:7777 -e THIS_INSTANCE_ADDRESS=<your-domain>:<YOUR-PORT> -v $HOME/.chatcola/:/root/.chatcola chatcola/chatcola
   ```
 
-# 5. Starting the server
+* If you are using npm, then run:
+  
+  ```bash
+  THIS_INSTANCE_ADDRESS=<your-domain>:7777 chatcola-server
+  ```
 
-## You'll need to have `node` version 14.4.0 or later installed. To do so run:
+Available options are:
 
-```bash
-  $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-  $ nvm install 14.4.0
-```
+* `THIS_INSTANCE_ADDRESS` - the address of your instance. I.e. if you have domain `example.com`, this is going to be `example.com:7777` 
 
-## And then from your `chatcola-server` directory (The one that contains both `build` and `assets`) run:
+* `PORT` - if using this, then also remember to change the port from `7777` in `THIS_INSTANCE_ADDRESS`. So if you set `PORT` to be, for example, `5050` and you have domain `example.com`, you have to set `THIS_INSTANCE_ADDRESS` to `example.com:5050`. You can do a reverse proxy with nginx and bind port 443 to your chatcola instance, then you won't have to specify the port in this variable.
 
-```bash
-  $ NODE_ENV=production node build
-```
+* `SHOULD_REPORT_ERRORS` Set this to `false` to disable our [sentry](https://github.com/getsentry/sentry).
 
-## If everything went right, your server is now running! To verify it, head over to chatcola.com and make a chatroom using your `INSTANCE_ADDRESS` from `production.env`
 
-## __You have successfuly installed chatcola!__
 
-  ---
+#### Keeping the instance running
 
-### Beyond starting
+With docker you have this out of the box.
 
-<p>You'll probably need some sort of program to keep your instance running forever. What we recommend is [ PM2 ](https://npmjs.com/package/pm2). To install it run:
+With npm however, you have plenty of options, the best one being `systemd`, but since it requires `sudo` access we'll show you another way:
 
 ```bash
-$ cd chatcola-server
-$ npm install pm2
-$ cp build/ecosystem.config.js .
-$ ./node_modules/.bin/pm2 start ecosystem.config.js
+npm install forever -g
 ```
 
-Now your server will restart after crashes and wont exit when you leave ssh.
+```bash
+forever start "THIS_INSTANCE_ADDRESS=<your-domain>:7777 chatcola-server"
+```
 
-[forever](https://www.npmjs.com/package/forever) is a good alternative to pm2. 
-
-</p>
+That's it. You might want to go a little bit further and use something like [pm2](https://npmjs.com/package/pm2) which also provides a nice way of plugging in your processes to `systemd`.
