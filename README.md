@@ -1,12 +1,16 @@
 # Chatcola server
 
-![Docker Automated build](https://img.shields.io/docker/automated/chatcola/chatcola)
-
-![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/chatcola/chatcola)
-
-
+  <p align="center">
+    <a href="https://hub.docker.com/repository/docker/chatcola/chatcola" alt="Docker image">
+        <img src="https://img.shields.io/docker/automated/chatcola/chatcola" />
+    </a>
+    <a href="https://hub.docker.com/repository/docker/chatcola/chatcola" alt="Docker image">
+        <img src="https://img.shields.io/docker/cloud/build/chatcola/chatcola" />
+    </a>
+</p>
 
 ---
+
 
 This repository hosts the chatcola server needed to self-host reliance and storage of your messaging.
 

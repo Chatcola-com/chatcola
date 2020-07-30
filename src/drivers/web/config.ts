@@ -5,6 +5,7 @@
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import path from 'path';
 import appRoot from "app-root-path";
+import os from "os";
 import fs from "fs";
 
 if(!process.env.PORT)
@@ -12,10 +13,12 @@ if(!process.env.PORT)
 
 const isProd = ["staging", "production"].includes(process.env.NODE_ENV?.toLowerCase() || "");
 
-const assetsPath = path.resolve(
-  appRoot.path,
-  isProd ? "../assets" : "assets"
-);
+const assetsPath = isProd ? 
+  path.resolve(os.homedir(), ".chatcola") :
+  path.resolve(appRoot.path, "assets");
+
+if(!fs.existsSync(assetsPath))
+  fs.mkdirSync(assetsPath);
 
 const config = {
   
