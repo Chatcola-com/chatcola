@@ -28,7 +28,6 @@ export default MakeHttpCarousel({
         }),
 
         async (res: HttpResponse, req: HttpRequest) => {
-
             Logger.info(`${req.getMethod().toUpperCase()} ${req.getUrl()}`);
         }
 

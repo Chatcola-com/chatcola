@@ -1,9 +1,13 @@
 {
   "name": "chatcola-server",
-  "version": "2.0.0",
-  "main": "src/index.ts",
+  "version": "2.0.10",
+  "main": "build/index.js",
+  "bin": {
+    "chatcola-server": "./build/index.js"
+  },
   "author": "@anteeek <antekpapiewski@gmail.com>",
-  "private": true,
+  "private": false,
+  "license": "BSL-1.1 (./LICENSE.MD)",
   "devDependencies": {
     "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.10.3",
@@ -35,7 +39,7 @@
   "scripts": {
     "test": "jest",
     "dev": "cross-env NODE_ENV=development nodemon",
-    "build": "ncc build -s ./src/drivers/web/index.ts -o build && cp LICENSE.md src/third-party-licenses.json ecosystem.config.js ./node_modules/**/*.node ./build",
+    "build": "./scripts/build",
     "deploy": "./scripts/deploy"
   },
   "dependencies": {

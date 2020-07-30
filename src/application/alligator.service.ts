@@ -4,13 +4,11 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { Service, Inject, Container } from "typedi";
-import { TFetcher, TLogger, TErrorTracker } from "../types/infrastructure";
+import { TFetcher } from "../types/infrastructure";
 
-import config from "../infrastructure/config";
 import { TPushMessage } from "types/push";
 
-const ErrorTracker = Container.get<TErrorTracker>("errorTracker");
-const Logger = Container.get<TLogger>("logger");
+const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
 
 @Service()
 export default class AlligatorService {
@@ -23,7 +21,7 @@ export default class AlligatorService {
         const result = await this.fetcher(`/api/chatcolaInstance/hello`, {
             method: "POST",
             body: JSON.stringify({
-                myName: config.this_instance_address
+                myName: THIS_INSTANCE_ADDRESS
             })
         });
 

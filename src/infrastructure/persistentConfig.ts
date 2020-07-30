@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 const JWT_SECRET_KEY = "JWT_SECRET";
 
-export default function initJwtSecret(keyValueStore: TKeyValueStore): string {
+export function initJwtSecret(keyValueStore: TKeyValueStore): string {
 
     const retrievedJwtSecret = keyValueStore.getItem(JWT_SECRET_KEY);
 
@@ -27,4 +27,16 @@ function generateNewJwtSecret(): string {
     const randomBytes = crypto.randomBytes(128);
 
     return randomBytes.toString("hex");
+}
+
+const PERSISTED_INSTANCE_ADDRESS_KEY = "PERSISTED_INSTANCE_ADDRESS";
+
+export function getPersistedInstanceAddress(keyValueStore: TKeyValueStore): string | null {
+    const persistedInstanceAddress = keyValueStore.getItem(PERSISTED_INSTANCE_ADDRESS_KEY);
+
+    return persistedInstanceAddress;
+}
+
+export function persistInstanceAddress(keyValueStore: TKeyValueStore, instanceAddress: string) {
+    keyValueStore.setItem(PERSISTED_INSTANCE_ADDRESS_KEY, instanceAddress);
 }

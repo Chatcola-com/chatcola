@@ -5,6 +5,7 @@
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import path from 'path';
 import appRoot from "app-root-path";
+import os from "os";
 import fs from "fs";
 
 if(!process.env.PORT)
@@ -12,10 +13,12 @@ if(!process.env.PORT)
 
 const isProd = ["staging", "production"].includes(process.env.NODE_ENV?.toLowerCase() || "");
 
-const assetsPath = path.resolve(
-  appRoot.path,
-  isProd ? "../assets" : "assets"
-);
+const assetsPath = isProd ? 
+  path.resolve(os.homedir(), ".chatcola") :
+  path.resolve(appRoot.path, "assets");
+
+if(!fs.existsSync(assetsPath))
+  fs.mkdirSync(assetsPath);
 
 const config = {
   
@@ -38,9 +41,12 @@ if(config.server.key_file_name) {
     fs.readFileSync(config.server.cert_file_name);
   }
   catch( err ) {
-    console.error(`Error reading SSL keys: `, err);
+    console.error(`Error reading SSL keys: `, err.message);
 
-    throw err;
+    if(err.code === "ENOENT")
+      process.exit(2);
+    else
+      throw err;
   }
 
 }

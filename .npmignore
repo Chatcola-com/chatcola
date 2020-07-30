@@ -1,0 +1,12 @@
+src/**/*
+scripts
+node_modules
+assets
+__tests__
+babel.config.js
+jest.config.js
+ecosystem.config.js
+
+tsconfi*.json
+
+*.env
