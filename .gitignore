@@ -7,6 +7,6 @@ chatcola.nedb-*
 *.env
 *.pem
 
-build
+build/
 
 chatcola.json

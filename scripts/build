@@ -1,0 +1,15 @@
+#! /bin/bash
+
+./node_modules/.bin/ncc build -s ./src/drivers/web/index.ts -o build
+cp LICENSE.md src/third-party-licenses.json ecosystem.config.js ./node_modules/**/*.node ./build
+
+echo $'#!/usr/bin/env node\n\n' > build/.temp
+echo "process.env.NODE_ENV = \"${NODE_ENV:=production}\";" >> build/.temp
+echo $'\n\n' >> build/.temp
+
+cat build/index.js > build/index.temp.js
+
+cat build/.temp build/index.temp.js > build/index.js
+
+rm build/.temp
+rm build/index.temp.js

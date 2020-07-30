@@ -8,6 +8,8 @@ RUN yarn install
 
 COPY . .
 
+RUN ls
+
 RUN chmod +x ./scripts/build
 RUN ./scripts/build
 
