@@ -41,9 +41,12 @@ if(config.server.key_file_name) {
     fs.readFileSync(config.server.cert_file_name);
   }
   catch( err ) {
-    console.error(`Error reading SSL keys: `, err);
+    console.error(`Error reading SSL keys: `, err.message);
 
-    throw err;
+    if(err.code === "ENOENT")
+      process.exit(2);
+    else
+      throw err;
   }
 
 }
