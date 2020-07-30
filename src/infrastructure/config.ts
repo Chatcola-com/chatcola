@@ -26,11 +26,11 @@ dotenv.config({
   path: dotenvPath
 });
 
-if(process.env.DATABASE === "mongo" && !process.env.MONGO_URI)
-  throw new Error(`Please specify MONGO_URI in ${dotenvPath} or change DATABASE .env variable to "nedb"`);
+if(process.env.DATABASE === "mongo" && !process.env.MONGO_URI) {
+  console.error(`Please specify MONGO_URI in ${dotenvPath} or change DATABASE .env variable to "nedb"`);
+  process.exit(1);
+}
 
-if(!process.env.THIS_INSTANCE_ADDRESS)
-  throw new Error(`Please specify THIS_INSTANCE_ADDRESS with cross-env or with -e flag if using docker`);
 
 export default {
     database: getPrefferedDatabaseType(),
@@ -46,8 +46,6 @@ export default {
     should_report_errors: Boolean(process.env.SHOULD_REPORT_ERRORS !== "false"),
 
     delegator_url: getDelegatorUrl(),
-
-    this_instance_address: process.env.THIS_INSTANCE_ADDRESS,
 
     logs: {
         level: "debug",
