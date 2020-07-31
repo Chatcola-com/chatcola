@@ -15,6 +15,8 @@ import { AppError } from "../../../../infrastructure/utils";
 import { Container } from "typedi";
 import { TLogger } from "types/infrastructure";
 
+import config from "../../config";
+
 const Logger = Container.get<TLogger>("logger");
 
 export default MakeHttpCarousel({
@@ -23,7 +25,7 @@ export default MakeHttpCarousel({
         middlewares.extractHeaders(["Authorization"]),
 
         middlewares.cors({
-            allowOrigin: "*",
+            allowOrigin: config.client_url,
             allowCredentials: false
         }),
 

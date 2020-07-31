@@ -24,7 +24,7 @@ const config = {
   
   port: parseInt(process.env.PORT, 10),
 
-  client_url: process.env.CLIENT_URL,
+  client_url: getClientUrl(),
 
   sentry_dsn: process.env.SENTRY_DSN,
 
@@ -33,6 +33,14 @@ const config = {
     cert_file_name: path.resolve(assetsPath, "fullchain.pem")
   },
 };
+
+function getClientUrl() {
+  switch(process.env.NODE_ENV) {
+    case "production": return "https://chatcola.com";
+    case "staging": return "https://chatcola.art-c.tech";
+    default: return "http://localhost:3000";
+  }
+}
 
 if(config.server.key_file_name) {
 
