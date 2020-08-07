@@ -38,7 +38,8 @@
   },
   "scripts": {
     "test": "jest",
-    "dev": "cross-env NODE_ENV=development nodemon",
+    "dev": "cross-env NODE_ENV=development nodemon src/drivers/web",
+    "dev:p2p": "cross-env NODE_ENV=development nodemon src/drivers/p2p",
     "build": "./scripts/build",
     "deploy": "./scripts/deploy"
   },
@@ -64,7 +65,9 @@
     "uWebSockets.js": "uNetworking/uWebSockets.js#v18.1.0",
     "uuid": "^8.1.0",
     "web-push": "^3.4.4",
+    "webrtc-adapter": "^7.6.4",
     "winston": "^3.2.1",
+    "wrtc": "^0.4.6",
     "yup": "^0.29.1",
     "zod": "^1.10.1"
   }

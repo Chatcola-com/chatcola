@@ -30,7 +30,7 @@ const fourOhFour = (res: HttpResponse, req: HttpRequest) => {
 
 const options = (res: HttpResponse, req: HttpRequest) => {
 
-    res.writeHeader(`Access-Control-Allow-Origin`, config.client_url);
+    res.writeHeader(`Access-Control-Allow-Origin`, "*");
     res.writeHeader(`Access-Control-Allow-Methods`, `*`);
     res.writeHeader(`Access-Control-Allow-Headers`, `*`);
     res.writeHeader(`Access-Control-Max-Age`, `-1`);

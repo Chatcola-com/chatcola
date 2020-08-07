@@ -25,7 +25,7 @@ export default MakeHttpCarousel({
         middlewares.extractHeaders(["Authorization"]),
 
         middlewares.cors({
-            allowOrigin: config.client_url,
+            allowOrigin: '*',
             allowCredentials: false
         }),
 
