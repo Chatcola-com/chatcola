@@ -12,6 +12,7 @@ import {
 import { Container } from "typedi";
 import { TAlligatorWsConnector } from "types/infrastructure";
 import config from "./config";
+import bootstrapRTCDataChannel from "./api";
 
 const alligatorWsConnector = Container.get<TAlligatorWsConnector>("alligatorWsConnector");
 
@@ -20,6 +21,9 @@ const peerConnections: {
     [topicId: string]: RTCPeerConnection
 } = {};
 
+const dataChannels: {
+    [topicId: string]: RTCDataChannel
+} = {};
 
 export default async function bootstrapP2PServer() {
 
@@ -31,6 +35,17 @@ export default async function bootstrapP2PServer() {
         const pc: RTCPeerConnection = new _RTCPeerConnection({
             iceServers: config.iceServers
         });
+
+        pc.ondatachannel = ({ channel }) => {
+            channel.onopen = () => {
+                dataChannels[message.topicId] = channel;
+                bootstrapRTCDataChannel(channel);
+            }
+
+            channel.onclose = () => {
+                delete dataChannels[message.topicId];
+            }
+        }
 
         peerConnections[message.topicId] = pc;
 
@@ -78,11 +93,11 @@ export default async function bootstrapP2PServer() {
 async function awaitForPeerconnection(topicId: string) {
     return new Promise( (re, rj) => {
         
-        let timeElapsed = 0;
+        let timesFired = 0;
 
         const interval = setInterval(() => {
 
-            if(timeElapsed >= 60000) {
+            if(timesFired >= 120) {
                 clearInterval(interval);
                 rj();
             }
@@ -90,7 +105,7 @@ async function awaitForPeerconnection(topicId: string) {
             if(peerConnections[topicId])
                 re();
             else 
-                timeElapsed += 500;
+                timesFired++;
 
         }, 500);
     })
