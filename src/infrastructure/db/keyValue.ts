@@ -7,11 +7,13 @@ import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 
 import path from 'path';
-import appRoot from "app-root-path";
+
 import { TKeyValueStore } from "../../types/infrastructure";
 
+import config from "../config";
 
-const adapter = new FileSync( path.resolve( appRoot.path, "chatcola.json" ) );
+
+const adapter = new FileSync( path.resolve( config.assetsPath, "chatcola.json" ) );
 const db = low(adapter)
 
 db.defaults({}).write();

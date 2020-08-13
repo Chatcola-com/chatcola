@@ -24,15 +24,23 @@ import { IKeyService } from "../types/infrastructure";
 
 import getAlligatorWsConnector from "./alligatorWsConnector";
 
+import readline from "readline-sync";
+
 const jwtSecret = initJwtSecret(keyValueStore);
 Container.set("jwtSecret", jwtSecret);
 
 const persistedInstanceAddress = getPersistedInstanceAddress(keyValueStore);
 
 if(!persistedInstanceAddress && !process.env.THIS_INSTANCE_ADDRESS) {
-    console.error(`Run this command as "THIS_INSTANCE_ADDRESS=<your-domain>:<your-port>" 
-    or, if running with docker: "sudo docker run -e THIS_INSTANCE_ADDRESS=<your-domain>:<your-port> -v $HOME/.chatcola/:/root/.chatcola chatcola/chatcola`);
-    process.exit(1);
+   
+    const instanceAddress = readline.question("Please input instance address...\n--> ")
+    const instanceAddressRepeat = readline.question("Please repeat the instance address...\n--> ");
+
+    if(!instanceAddress || (instanceAddress !== instanceAddressRepeat))
+        process.exit(1);
+
+    persistInstanceAddress(keyValueStore, instanceAddress);
+    Container.set("THIS_INSTANCE_ADDRESS", instanceAddress);
 } 
 else if(process.env.THIS_INSTANCE_ADDRESS) {
     persistInstanceAddress(keyValueStore, process.env.THIS_INSTANCE_ADDRESS);

@@ -14,17 +14,15 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 const isProd = ["staging", "production"].includes(process.env.NODE_ENV?.toLowerCase() || "");
 
 const assetsPath = isProd ? 
-  path.resolve(os.homedir(), ".chatcola") :
-  path.resolve(appRoot.path, "assets");
+  path.resolve(os.homedir(), `.chatcola-${getDriverType()}`) :
+  path.resolve(appRoot.path, `assets-${getDriverType()}`);
 
 if(!fs.existsSync(assetsPath))
   fs.mkdirSync(assetsPath);
 
 const dotenvPath = path.resolve(assetsPath, process.env.NODE_ENV.toLowerCase()+".env");
 
-dotenv.config({
-  path: dotenvPath
-});
+dotenv.config({ path: dotenvPath });
 
 if(process.env.DATABASE === "mongo" && !process.env.MONGO_URI) {
   console.error(`Please specify MONGO_URI in ${dotenvPath} or change DATABASE .env variable to "nedb"`);
@@ -34,6 +32,8 @@ if(process.env.DATABASE === "mongo" && !process.env.MONGO_URI) {
 
 export default {
     database: getPrefferedDatabaseType(),
+
+    assetsPath,
 
     inMemoryDatabase: process.env.NODE_ENV === "test",
 
@@ -51,10 +51,17 @@ export default {
         level: "debug",
     },
 
-    iceServers: [
-      { urls: "stun:stun.stunprotocol.org" },
-    ] 
+    driver: getDriverType(),
     
+}
+
+
+function getDriverType(): "http" | "webrtc" {
+  if(process.env.CHATCOLA_DRIVER && ["http", "webrtc"].includes(process.env.CHATCOLA_DRIVER))
+    //@ts-ignore
+    return process.env.CHATCOLA_DRIVER;
+
+  return "webrtc";
 }
 
 function getPrefferedDatabaseType(): "nedb" | "mongo" {

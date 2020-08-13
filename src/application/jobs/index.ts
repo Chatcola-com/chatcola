@@ -9,6 +9,8 @@ import ChatroomService from "../chatroom.service";
 import MessageService from "../message.service";
 import AlligatorService from "../alligator.service";
 
+import infraConfig from "../../infrastructure/config";
+
 const jobScheudler = Container.get<TJobScheduler>("jobScheduler");
 
 const chatroomService = Container.get(ChatroomService);
@@ -20,5 +22,11 @@ export default async function initJobs() {
     jobScheudler.schedule("* * * * *", () => chatroomService.clearExpired());
     jobScheudler.schedule("* * * * *", () => messageService.clearStale());
 
-    jobScheudler.schedule("0 * * * *", () => alligatorService.sayHello());
+    jobScheudler.schedule("0 * * * *", () => {
+
+        if(infraConfig.driver === "http")
+            alligatorService.sayHello()
+        else 
+            alligatorService.sayHelloP2p();
+    });
 }

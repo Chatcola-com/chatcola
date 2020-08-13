@@ -45,30 +45,33 @@ export const messageFromAlligatorSchema = zod.intersection(
     }).nonstrict(),
     zod.union([
         zod.object({
-            type: zod.literal("webrtcOffer"),
+            type: zod.literal("webrtcoffer"),
             data: zod.object({
-                webrtcOffer: zod.string()
+                webrtcoffer: zod.string()
             })
-        }),
+        }).nonstrict(),
         zod.object({
-    
-        })
+            type: zod.literal("icecandidate"),
+            data: zod.object({
+                icecandidate: zod.string()
+            })
+        }).nonstrict()
     ])
 )
 
 export const messageToAlligatorSchema = zod.union([
         zod.object({
-            type: zod.literal("webrtcAnswer"),
+            type: zod.literal("webrtcanswer"),
             data: zod.object({
-                webrtcAnswer: zod.any()
+                webrtcanswer: zod.string()
             })
         }).nonstrict(),
         zod.object({
-            type: zod.literal("iceCandidate"),
+            type: zod.literal("icecandidate"),
             data: zod.object({
-                iceCandidate: zod.object({}).nonstrict()
+                icecandidate: zod.string()
             })
-        }).nonstrict()
+        }).nonstrict(),
     ])
 
 
@@ -81,7 +84,7 @@ export type TAlligatorWsConnector = {
         unsubscribe: () => any;
         handleMessage: ( callback: (message: TMessageFromAlligator) => any ) => any;
     },
-    subscribe: (type: string, handler: (message: TMessageFromAlligator, ws: WebSocket) => any) => {
+    subscribe: (type: string, handler: (message: TMessageFromAlligator, send: (message: TMessageToAlligator) => any) => any) => {
         unSubscribe: () => any;
     };
 }

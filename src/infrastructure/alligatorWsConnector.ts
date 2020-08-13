@@ -16,11 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 
 let alligatorConection: null | WebSocket;
 
-const unsubscribedTopics: {
-    [topicId: string]: boolean | null;
-} = {};
-
-type TAlligatorMessageHandler = (message: TMessageFromAlligator, ws: WebSocket) => any;
+type TAlligatorMessageHandler = (message: TMessageFromAlligator, send: (message: TMessageToAlligator) => any) => any;
 
 const topicHandlers: {
     [topicId: string]: TAlligatorMessageHandler;
@@ -30,6 +26,16 @@ const typeHandlers: {
     [type: string]: TAlligatorMessageHandler;
 } = {};
 
+function makeSendToAlligator(topicId: string) {
+    return async function sendToAlligator(message: TMessageToAlligator) {
+        await waitForConnection();
+
+        alligatorConection?.send(JSON.stringify({
+            ...message,
+            topicId
+        }))
+    } 
+}
 
 function bootstrapAlligatorWsConnection() {
     alligatorConection?.on("message", function(data) {
@@ -46,7 +52,12 @@ function bootstrapAlligatorWsConnection() {
         if(
             (typeof topicHandlers[message.topicId]) === "function"
         )
-            topicHandlers[message.topicId](message, alligatorConection!);
+            topicHandlers[message.topicId](message, makeSendToAlligator(message.topicId));
+
+        if(
+            (typeof typeHandlers[message.type] === "function")
+        )
+            typeHandlers[message.type](message, makeSendToAlligator(message.topicId));
     });
 };
 

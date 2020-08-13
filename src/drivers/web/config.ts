@@ -4,21 +4,13 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import path from 'path';
-import appRoot from "app-root-path";
-import os from "os";
 import fs from "fs";
+
+import infraConfig from "../../infrastructure/config";
 
 if(!process.env.PORT)
   process.env.PORT = "7777";
 
-const isProd = ["staging", "production"].includes(process.env.NODE_ENV?.toLowerCase() || "");
-
-const assetsPath = isProd ? 
-  path.resolve(os.homedir(), ".chatcola") :
-  path.resolve(appRoot.path, "assets");
-
-if(!fs.existsSync(assetsPath))
-  fs.mkdirSync(assetsPath);
 
 const config = {
   
@@ -29,8 +21,8 @@ const config = {
   sentry_dsn: process.env.SENTRY_DSN,
 
   server: {
-    key_file_name: path.resolve(assetsPath, "privkey.pem"),
-    cert_file_name: path.resolve(assetsPath, "fullchain.pem")
+    key_file_name: path.resolve(infraConfig.assetsPath, "privkey.pem"),
+    cert_file_name: path.resolve(infraConfig.assetsPath, "fullchain.pem")
   },
 };
 

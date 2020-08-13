@@ -4,10 +4,12 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { Container } from "typedi";
-import { TLogger } from "types/infrastructure";
+
+process.env.CHATCOLA_DRIVER = "http";
+
+import { TLogger } from "../../types/infrastructure";
 
 import bootstrapApp from "../../index";
-
 import bootstrapWebserver from "./server";
 import bootstrapWebEvents from "./events/index";
 

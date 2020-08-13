@@ -4,7 +4,7 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { Service, Inject, Container } from "typedi";
-import { TFetcher } from "../types/infrastructure";
+import { TFetcher, TAlligatorWsConnector } from "../types/infrastructure";
 
 import { TPushMessage } from "types/push";
 
@@ -12,6 +12,7 @@ import { TPushMessage } from "types/push";
 import { RTCPeerConnection } from "wrtc";
 
 import infraConfig from "../infrastructure/config";
+import KeyService from "../infrastructure/keys";
 
 const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
 
@@ -19,7 +20,8 @@ const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
 export default class AlligatorService {
 
     constructor(
-        @Inject("alligatorFetcher") private fetcher: TFetcher
+        @Inject("alligatorFetcher") private fetcher: TFetcher,
+        @Inject("keyservice") private keyService : KeyService
     ) {}
 
     async sayHello() {
@@ -34,21 +36,16 @@ export default class AlligatorService {
             throw new Error(JSON.stringify(result));
     }
 
-    async sayHelloP2p(webrtcOffer: RTCSessionDescriptionInit, iceCandidates: RTCIceCandidate[]): Promise<{ 
-        iceCandidates: RTCIceCandidate[], 
-        webrtcAnswer: RTCSessionDescriptionInit 
-    }> {
-    
-        const result = await this.fetcher(`/api/chatcolaInstance/hellop2p`, {
+    async sayHelloP2p() {
+        const result = await this.fetcher(`/api/chatcolaInstance/hello`, {
             method: "POST",
             body: JSON.stringify({
                 myName: THIS_INSTANCE_ADDRESS,
-                webrtcOffer,
-                iceCandidates
+                publicRSAKey: this.keyService.getPublicKey()
             })
         });
 
-        return result.data;
+        console.log(result);
     }
     
     async putChatroomCard({slug, valid_until}: { slug: string; valid_until: number }) {
