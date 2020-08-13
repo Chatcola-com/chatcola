@@ -20,7 +20,9 @@ import keyValueStore from "./db/keyValue";
 import resolveDatabase from "./db";
 import KeyService from "./keys";
 import { initJwtSecret, getPersistedInstanceAddress, persistInstanceAddress } from "./persistentConfig";
-import { IKeyService } from "types/infrastructure";
+import { IKeyService } from "../types/infrastructure";
+
+import getAlligatorWsConnector from "./alligatorWsConnector";
 
 const jwtSecret = initJwtSecret(keyValueStore);
 Container.set("jwtSecret", jwtSecret);
@@ -55,6 +57,7 @@ Container.set("keyValueStore", keyValueStore);
 Container.set("keyservice", new KeyService(keyValueStore));
 
 Container.set("alligatorFetcher", alligatorFetcher(THIS_INSTANCE_ADDRESS));
+Container.set("alligatorWsConnector", getAlligatorWsConnector(THIS_INSTANCE_ADDRESS))
 
 const { 
     chatroomRepository,

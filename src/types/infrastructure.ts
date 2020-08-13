@@ -7,8 +7,12 @@
  * /------------------------------------------
  */
 
+import WebSocket from "ws";
+
 import Chatroom from "application/entities/chatroom";
 import Message from "application/entities/message";
+
+import * as zod from "zod";
 
 export type TLogger = {
     info: TLogFunction;
@@ -30,6 +34,57 @@ export type TJobScheduler = {
  */
 
 export type TFetcher = (path: string, options?: any) => Promise<any>;
+
+/** / 
+ * /------------------------------------------
+*/
+
+export const messageFromAlligatorSchema = zod.intersection(
+    zod.object({
+        topicId: zod.string()
+    }).nonstrict(),
+    zod.union([
+        zod.object({
+            type: zod.literal("webrtcOffer"),
+            data: zod.object({
+                webrtcOffer: zod.string()
+            })
+        }),
+        zod.object({
+    
+        })
+    ])
+)
+
+export const messageToAlligatorSchema = zod.union([
+        zod.object({
+            type: zod.literal("webrtcAnswer"),
+            data: zod.object({
+                webrtcAnswer: zod.any()
+            })
+        }).nonstrict(),
+        zod.object({
+            type: zod.literal("iceCandidate"),
+            data: zod.object({
+                iceCandidate: zod.object({}).nonstrict()
+            })
+        }).nonstrict()
+    ])
+
+
+export type TMessageToAlligator = zod.infer< typeof messageToAlligatorSchema >;
+export type TMessageFromAlligator = zod.infer< typeof messageFromAlligatorSchema >;
+
+export type TAlligatorWsConnector = {
+    startTopic: () => {
+        send: (message: TMessageToAlligator) => any;
+        unsubscribe: () => any;
+        handleMessage: ( callback: (message: TMessageFromAlligator) => any ) => any;
+    },
+    subscribe: (type: string, handler: (message: TMessageFromAlligator, ws: WebSocket) => any) => {
+        unSubscribe: () => any;
+    };
+}
 
 /** / 
  * /------------------------------------------

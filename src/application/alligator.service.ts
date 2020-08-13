@@ -8,6 +8,11 @@ import { TFetcher } from "../types/infrastructure";
 
 import { TPushMessage } from "types/push";
 
+//@ts-ignore
+import { RTCPeerConnection } from "wrtc";
+
+import infraConfig from "../infrastructure/config";
+
 const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
 
 @Service()
@@ -27,6 +32,23 @@ export default class AlligatorService {
 
         if(!result.success) 
             throw new Error(JSON.stringify(result));
+    }
+
+    async sayHelloP2p(webrtcOffer: RTCSessionDescriptionInit, iceCandidates: RTCIceCandidate[]): Promise<{ 
+        iceCandidates: RTCIceCandidate[], 
+        webrtcAnswer: RTCSessionDescriptionInit 
+    }> {
+    
+        const result = await this.fetcher(`/api/chatcolaInstance/hellop2p`, {
+            method: "POST",
+            body: JSON.stringify({
+                myName: THIS_INSTANCE_ADDRESS,
+                webrtcOffer,
+                iceCandidates
+            })
+        });
+
+        return result.data;
     }
     
     async putChatroomCard({slug, valid_until}: { slug: string; valid_until: number }) {

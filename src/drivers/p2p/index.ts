@@ -10,10 +10,6 @@ import bootstrapApp from "../../index";
 
 import bootstrapP2PServer from "./server";
 
-import AlligatorService from "../../application/alligator.service";
-
-const alligatorService = Container.get(AlligatorService);
-
 (async () => {
 
     await bootstrapApp();
@@ -23,13 +19,7 @@ const alligatorService = Container.get(AlligatorService);
     const webserver = await bootstrapP2PServer();
 
     Container.set("webserver", webserver);
-
-    /*
-    await alligatorService.sayHelloP2p()
-        .then(() => Logger.info(`Successfuly connected to Alligator`))
-        .catch((error: any) => Logger.error(error, `Failed connect to Alligator`))
-    */  
-
-    Logger.info(`Started webserver on localhost`)
+    
+    Logger.info(`Started webserver on localhost`);
 
 })()

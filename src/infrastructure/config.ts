@@ -50,6 +50,10 @@ export default {
     logs: {
         level: "debug",
     },
+
+    iceServers: [
+      { urls: "stun:stun.stunprotocol.org" },
+    ] 
     
 }
 
@@ -63,8 +67,8 @@ function getPrefferedDatabaseType(): "nedb" | "mongo" {
 
 function getDelegatorUrl() {
   switch(process.env.NODE_ENV) {
-    case "production": return "https://alligator.chatcola.com";
-    case "staging": return "https://alligator.chatcola.art-c.tech";
-    default: return "https://localhost:2112"
+    case "production": return "alligator.chatcola.com";
+    case "staging": return "alligator.chatcola.art-c.tech";
+    default: return "localhost:2112"
   }
 }
