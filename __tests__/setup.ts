@@ -11,6 +11,8 @@ Container.set("errorTracker", {
     submit: jest.fn()
 })
 
+Container.set("jwtSecret", "hehehe");
+
 Container.set("logger", {
     info: console.log,
     error: console.error,
