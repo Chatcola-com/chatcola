@@ -43,7 +43,10 @@ export default {
     //It's rather a filename template, not a directory.
     nedbPath: path.resolve(assetsPath, "chatcola.nedb"),
     
-    should_report_errors: Boolean(process.env.SHOULD_REPORT_ERRORS !== "false"),
+    should_report_errors: Boolean(
+      isProd && 
+      process.env.SHOULD_REPORT_ERRORS !== "false"  
+    ),
 
     delegator_url: getDelegatorUrl(),
 

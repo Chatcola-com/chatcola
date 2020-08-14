@@ -30,8 +30,8 @@ const alligatorService = Container.get(AlligatorService);
   Container.set("webserver", webserver);
 
   await alligatorService.sayHello()
-  .then(() => Logger.info(`Successfuly connected to Alligator`))
-  .catch((error: any) => Logger.error(error, `Failed connect to Alligator`))
+    .then(() => Logger.info(`Successfuly connected to Alligator`))
+    .catch((error: any) => Logger.error(error, `Failed connect to Alligator`))
 
 
   bootstrapWebEvents();

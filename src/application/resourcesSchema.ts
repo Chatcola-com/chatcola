@@ -41,3 +41,10 @@ export const enterManagingChatroom = zod.object({
     admin_slug: zod.string().nonempty(),
     slug: zod.string().nonempty()
 })
+
+export const requestContext = zod.object({
+    chatroomToken: zod.string().nonempty().optional(),
+    adminToken: zod.string().nonempty().optional()
+})
+
+export type TRequestContext = zod.infer< typeof requestContext >;

@@ -3,28 +3,28 @@
 /*|----------Distribution of this software is only permitted in accordance with the BSL © 1.1 license----------/*/
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
-import { HttpRequest, HttpResponse } from "uWebSockets.js";
-
 import { Container } from "typedi";
-import AuthService from "../../../../application/auth.service";
 
-import { AppError } from "../../../../infrastructure/utils";
+import { TMessage } from "../entities/message";
+import ChatroomService from "../chatroom.service";
+import AlligatorService from "../alligator.service";
 
-const authService = Container.get(AuthService);
+const chatroomService = Container.get(ChatroomService);
+const alligatorService = Container.get(AlligatorService);
 
-export const authenticateForChatroom = async (res: HttpResponse, req: HttpRequest): Promise<any> => {
 
-    const token = res.headers[`Authorization`].split(" ").pop();
+async function sendPushAboutIncomingMessage(slug: string, message: TMessage) {
 
-    if(!token)
-        throw new AppError(`Unauthorized`);
+    const subscriptionIds = 
+        await chatroomService.getPushSubscribersIds(slug, message.author);
 
-    const claims = await authService.validateChatToken( token );
-
-    res.claims = claims;
+    await alligatorService.sendPushNotification(
+        subscriptionIds,
+        {
+            type: "incomingMessage",
+            data: message
+        }
+    )
 }
 
-export const ensureIsAdmin = async (res: HttpResponse, req: HttpRequest): Promise<any> => {
-    if(res.claims.type !== "admin")
-        throw new AppError("Unauthorized");
-}
+export { sendPushAboutIncomingMessage as aboutIncomingMessage };

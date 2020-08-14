@@ -50,8 +50,6 @@ export function message (ws: WebSocket, data: any) {
   const { name: author, slug } = ws.locals;
   const { content } = data;
 
-  //TODO: yup.validate here
-
   const message = Message.createNew({
     author,
     slug,

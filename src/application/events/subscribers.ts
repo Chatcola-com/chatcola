@@ -20,7 +20,7 @@ const messageService = Container.get(MessageService);
 
 const keyValueStore = Container.get<TKeyValueStore>("keyValueStore");
 
-import * as sendPushNotifications from "../use-cases/sendPushNotifications";
+import * as sendPushNotifications from "../resources/sendPushNotifications";
 
 export default () => {
 

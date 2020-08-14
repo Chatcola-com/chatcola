@@ -11,9 +11,6 @@ import AuthService from "../auth.service";
 import { TUserTokenClaims } from "../../types/auth";
 
 
-import { catchUnauthorized } from "./utils";
-
-
 const alligatorService = Container.get(AlligatorService);
 const chatroomService = Container.get(ChatroomService);
 const chatroomManagementService = Container.get(ChatroomManagementService);
@@ -36,77 +33,60 @@ export async function create(details: zod.infer< typeof resourcesSchema.createCh
     }
 }
 
-export async function getBasic(chatUserToken: string) {
+export async function getBasic(slug: string) {
 
-    return catchUnauthorized(async () => {
-        const claims = await authService.validateChatUserToken(chatUserToken);
+    const chatroom = await chatroomService.getBasic(slug);
 
-        const chatroom = await chatroomService.getBasic(claims.slug);
-
-        return chatroom ? {
-            success: true,
-            data: chatroom
-        } : {
-            success: false,
-            error: "Not found"
-        }
-    });
+    return chatroom ? {
+        success: true,
+        data: chatroom
+    } : {
+        success: false,
+        error: "Not found"
+    }
     
 }
 
-export async function getDetailed(chatAdminToken: string) {
+export async function getDetailed(slug: string) {
     
-    return catchUnauthorized(async () => {
-        
-        const claims = await authService.validateChatAdminToken(chatAdminToken);
+    const chatroom = await chatroomService.getDetailed(slug);
 
-        const chatroom = await chatroomService.getDetailed(claims.slug);
-
-        return chatroom ? {
-            success: true,
-            data: chatroom
-        } : {
-            success: false,
-            error: "Not found"
-        }
-    })
+    return chatroom ? {
+        success: true,
+        data: chatroom
+    } : {
+        success: false,
+        error: "Not found"
+    }
 }
 
-export async function leave(chatUserToken: string) {
+export async function leave(slug: string, name: string) {
     
-    return catchUnauthorized(async () => {
+    await chatroomManagementService.kickUser(
+        slug, 
+        name
+    );
 
-        const claims = await authService.validateChatUserToken(chatUserToken);
-
-        await chatroomManagementService.kickUser(
-            claims.slug, 
-            claims.name
-        );
-    
-        return {
-            success: true
-        }
-    });
+    return {
+        success: true
+    }
 }
 
-export async function clearMyMessages(chatUserToken: string) {
-    return catchUnauthorized(async () => {
+export async function clearMyMessages(slug: string, name: string) {
 
-        const claims = await authService.validateChatUserToken(chatUserToken);
-        
-        const nDeleted = await messageService.clearOfUser(
-            claims.slug,
-            claims.name
-        );
+    const nDeleted = await messageService.clearOfUser(
+        slug,
+        name
+    );
 
-        return {
-            success: true,
-            data: {
-                nDeleted
-            }
+    return {
+        success: true,
+        data: {
+            nDeleted
         }
-    })
+    }
 }
+
 
 export async function addSubscriptionToUser(chatroomToken: string, pushSubscriptionToken: string) {
 
