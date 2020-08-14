@@ -41,7 +41,7 @@ export async function revokeAccessToken(chatAdminToken: string, targetToken: str
 
 export async function generateAccessTokens(chatAdminToken: string, amount: number) {
 
-    catchUnauthorized(async () => {
+    return catchUnauthorized(async () => {
 
         const claims = await authService.validateChatAdminToken(chatAdminToken);
         
@@ -50,7 +50,7 @@ export async function generateAccessTokens(chatAdminToken: string, amount: numbe
         return {
             success: true
         }
-    })
+    });
 }
 
 export async function remove(chatAdminToken: string) {
