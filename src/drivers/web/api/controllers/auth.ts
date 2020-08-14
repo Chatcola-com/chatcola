@@ -5,77 +5,42 @@
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { HttpResponse, HttpRequest } from "uWebSockets.js";
 
-import { Container } from "typedi";
-import AuthService from "../../../../application/auth.service";
-import ChatroomService from "../../../../application/chatroom.service";
+import * as resourceSchema from "../../../../application/resourcesSchema";
 
-const authService = Container.get(AuthService);
-
-const chatroomService = Container.get(ChatroomService);
+import * as auth from "../../../../application/use-cases/auth";
 
 const login = async (res: HttpResponse, req: HttpRequest) => {
 
-    const token = await authService.login( res.body );
+    const details = resourceSchema.enterChatroom.parse(res.body);
+
+    const result = await auth.enterChatroom(details);
 
     res.writeStatus(`200 OK`);
 
-    res.end(JSON.stringify({
-        success: true,
-        data: { token }
-    }))
-}
-
-const leave = async (res: HttpResponse, req: HttpRequest) => {
-    await authService.leave(res.claims.slug, res.claims.name);
-
-    res.writeStatus(`200 OK`);
-    res.end(JSON.stringify({
-        success: true
-    }))
+    res.end(JSON.stringify(result))
 }
 
 const adminLogin = async (res: HttpResponse, req: HttpRequest) => {
 
-    const admin_token = await authService.adminLogin(res.body);
+    const details = resourceSchema.enterManagingChatroom.parse(res.body);
+    const result = await auth.enterManagingChatroom(details);
 
     res.writeStatus(`200 OK`);
-
-    res.end(JSON.stringify({
-        success: true,
-        data: { admin_token }
-    }))
+    res.end(JSON.stringify(result))
 }
 
 const getAuthType = async (res: HttpResponse, req: HttpRequest) => {
 
-    const slug = res.params["slug"];
+    const { slug } = resourceSchema.justSlug.parse(res.body);
 
-    const chatroom = await chatroomService.getBasic(slug);
-
-    if(!chatroom) {
-        res.writeStatus(`404 Not Found`);
-        res.end(JSON.stringify({
-            success: false,
-            error: "Not found"
-        }));
-
-        return;
-    }
-
-    const { auth_type } = chatroom;
+    const result = await auth.getAuthType(slug);
 
     res.writeStatus(`200 OK`);
-    res.end(JSON.stringify({
-        success: true,
-        data: {
-            auth_type
-        }
-    }))    
+    res.end(JSON.stringify(result))    
 }
 
 export default { 
     login,
     adminLogin,
-    getAuthType,
-    leave
+    getAuthType
 }

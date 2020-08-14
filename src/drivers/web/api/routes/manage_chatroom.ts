@@ -8,7 +8,6 @@ import { TemplatedApp } from "uWebSockets.js";
 import { HttpMiddlewares as middlewares } from "karuzela";
 import carousel, { authenticateForChatroom, ensureIsAdmin, validateBody } from "../middlewares";
 
-import schema from "../schema";
 
 import Controller from "../controllers/manage_chatroom";
 
@@ -24,33 +23,27 @@ export default (app: TemplatedApp): void => {
             )
     )
 
-    app.del(`/api/chatroom`,
-            carousel(
-                [
-                    authenticateForChatroom,
-                    ensureIsAdmin,
-                    Controller.deleteChatroom
-                ]
-            )
-    )
-
-    app.post(`/api/chatroom/kick_user/:user_name`, 
-            carousel(
-                [
-                    middlewares.parseParams(["user_name"]),
-                    authenticateForChatroom,
-                    ensureIsAdmin,
-                    Controller.kickUser
-                ]
-            )
-    )
-
-    app.post(`/api/chatroom/revoke_access_token/:token`, 
+    app.post(`/api/chatroom/delete`,
         carousel(
             [
-                middlewares.parseParams(["token"]),
-                authenticateForChatroom,
-                ensureIsAdmin,
+                Controller.deleteChatroom
+            ]
+        )
+    )
+
+    app.post(`/api/chatroom/kick_user`, 
+        carousel(
+            [
+                middlewares.parseBody,
+                Controller.kickUser
+            ]
+        )
+    )
+
+    app.post(`/api/chatroom/revoke_access_token`, 
+        carousel(
+            [
+                middlewares.parseBody,
                 Controller.revokeToken
             ]
         )
@@ -60,10 +53,7 @@ export default (app: TemplatedApp): void => {
     app.post(`/api/chatroom/generate_access_tokens`,
         carousel(
             [
-                authenticateForChatroom,
-                ensureIsAdmin,
                 middlewares.parseBody,
-                validateBody(schema.chatroom.generateAccessTokens),
                 Controller.generateAccessTokens
             ]
         )

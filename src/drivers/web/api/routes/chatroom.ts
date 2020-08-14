@@ -6,9 +6,8 @@
 import { TemplatedApp } from "uWebSockets.js";
 
 import { HttpMiddlewares as middlewares } from "karuzela";
-import carousel, { validateBody, authenticateForChatroom, ensureIsAdmin } from "../middlewares";
+import carousel from "../middlewares";
 
-import schema from "../schema";
 
 import Controller from "../controllers/chatroom";
 
@@ -18,7 +17,6 @@ export default (app: TemplatedApp): void => {
         carousel(
             [
                 middlewares.parseBody,
-                validateBody( schema.chatroom.create ),
                 Controller.startNew
             ]
         ) 
@@ -27,7 +25,6 @@ export default (app: TemplatedApp): void => {
     app.post(`/api/messages`,
         carousel(
             [
-                authenticateForChatroom,
                 Controller.getMessages
             ]
         )
@@ -36,7 +33,6 @@ export default (app: TemplatedApp): void => {
     app.get(`/api/chatroom`, 
         carousel(
             [ 
-                authenticateForChatroom,
                 Controller.getBasic
             ]
         ) 
@@ -45,8 +41,6 @@ export default (app: TemplatedApp): void => {
     app.get(`/api/chatroom/detailed`,
         carousel(
             [ 
-                authenticateForChatroom,
-                ensureIsAdmin,
                 Controller.getDetailed
             ]
         ) 
@@ -54,21 +48,18 @@ export default (app: TemplatedApp): void => {
 
     app.post(`/api/chatroom/leave`, 
         carousel([
-            authenticateForChatroom,
             Controller.leave
         ])
     );
 
     app.post(`/api/chatroom/clear_my_messages`, 
         carousel([
-            authenticateForChatroom,
             Controller.clearMyMessages
         ])
     );
 
     app.post(`/api/chatroom/pushSubscribe`, carousel([
         middlewares.parseBody,
-        validateBody(schema.push.subscribeToChatroom),
         Controller.pushSubscribeToChatroom
     ]));
 }

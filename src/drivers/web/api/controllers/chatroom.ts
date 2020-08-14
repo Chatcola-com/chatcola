@@ -3,148 +3,84 @@
 /*|----------Distribution of this software is only permitted in accordance with the BSL © 1.1 license----------/*/
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
-import { Container } from "typedi";
-
 import { HttpResponse, HttpRequest } from "uWebSockets.js";
-import { AppError } from "../../../../infrastructure/utils";
 
-import MessageService from "../../../../application/message.service";
-import ChatroomService from "../../../../application/chatroom.service";
-import ChatroomManagementService from "../../../../application/chatroom-management.service";
-import AlligatorService from "../../../../application/alligator.service";
-import AuthService from "../../../../application/auth.service";
+import * as resourcesSchema from "../../../../application/resourcesSchema";
 
-import { TUserTokenClaims } from "types/auth";
-
-const chatroomService = Container.get(ChatroomService);
-const alligatorService = Container.get(AlligatorService);
-const authService = Container.get(AuthService);
-const chatroomManagementService = Container.get(ChatroomManagementService);
-const messageService = Container.get(MessageService);
+import * as chatroom from "../../../../application/use-cases/chatroom";
+import * as message from "../../../../application/use-cases/messages";
 
 const startNew = async (res: HttpResponse, req: HttpRequest) => {
 
-    const chatroom = await chatroomService.new(res.body);
+    const details = resourcesSchema.createChatroom.parse(res.body);
 
-    const { slug, valid_until } = chatroom;
-
-    await alligatorService.putChatroomCard({ slug, valid_until });
+    const result = await chatroom.create(details);
 
     res.writeStatus(`200 OK`);
-
-    res.end(JSON.stringify({
-        success: true,
-        data: {
-            chatroom
-        }
-    }))
+    res.end(JSON.stringify(result))
 }
 
 const getBasic = async (res: HttpResponse, req: HttpRequest) => {
-    const chatroom = await chatroomService.getBasic(res.claims.slug);
 
-    if(!chatroom) 
-        throw new AppError("Not found");
+    const chatUserToken = getTokenFromRes(res);
+
+    const result = await chatroom.getBasic(chatUserToken);
 
     res.writeStatus(`200 OK`);
-
-    res.end(JSON.stringify({
-        success: true,
-        data: chatroom
-    }))
+    res.end(JSON.stringify(result));
 }
 
 const getDetailed = async (res: HttpResponse, req: HttpRequest) => {
-    const chatroom = await chatroomService.getDetailed(res.claims.slug);
+    const chatAdminToken = getTokenFromRes(res);
 
-    if(!chatroom) 
-        throw new AppError("Not found");
-    
+    const result = await chatroom.getDetailed(chatAdminToken);
+
     res.writeStatus(`200 OK`);
-
-    res.end(JSON.stringify({
-        success: true,
-        data: chatroom
-    }))
+    res.end(JSON.stringify(result));
 }
 
 const getMessages = async (res: HttpResponse, req: HttpRequest) => {
-   
-    const messages = await messageService.get(res.claims.slug);
-    
-    res.writeStatus(`200 OK`);
+    const chatUserToken = getTokenFromRes(res);
 
-    res.end(JSON.stringify({
-        success: true,
-        data: messages
-    }))
+    const result = await message.getMessages(chatUserToken);
+
+    res.writeStatus(`200 OK`);
+    res.end(JSON.stringify(result));
 }
 
 const leave = async (res: HttpResponse, req: HttpRequest) => {
 
-    await chatroomManagementService.kickUser(
-        res.claims.slug, 
-        res.claims.name
+    const result = await chatroom.leave(
+        getTokenFromRes(res)
     );
 
     res.writeStatus(`200 OK`);
-
-    res.end(JSON.stringify({
-        success: true
-    }))
+    res.end(JSON.stringify(result))
 }
 
 const clearMyMessages = async (res: HttpResponse, req: HttpRequest) => {
 
-    const nDeleted = await messageService.clearOfUser(
-        res.claims.slug, 
-        res.claims.name
+    const result = await chatroom.clearMyMessages(
+        getTokenFromRes(res)
     );
-
+    
     res.writeStatus(`200 OK`);
-
-    res.end(JSON.stringify({
-        success: true,
-        data: {
-            nDeleted
-        }
-    }))
+    res.end(JSON.stringify(result))
 }
 
 const pushSubscribeToChatroom = async (res: HttpResponse, req: HttpRequest) => {
 
-    try {
-        const chatroomClaimsPromise = 
-            <Promise<TUserTokenClaims>>authService.validateChatToken(res.body.chatroomToken);
+    const { pushSubscriptionToken, chatroomToken } = 
+        resourcesSchema.pushAndChatroomTokens.parse(res.body);
 
-        const subscriptionIdPromise = 
-            alligatorService.validatePushSubscriptionToken(res.body.pushSubscriptionToken);
+    const result = await chatroom.addSubscriptionToUser(chatroomToken, pushSubscriptionToken);
 
-        const [chatroomClaims, subscriptionId] 
-            = await Promise.all([chatroomClaimsPromise, subscriptionIdPromise]);
+    res.writeStatus(`200 OK`);
+    res.end(JSON.stringify(result));
+}
 
-        await chatroomService.addSubscriptionToUser({
-            subscriptionId: subscriptionId,
-            chatroomSlug: chatroomClaims.slug,
-            userName: chatroomClaims.name
-        });
-
-        res.end(JSON.stringify({
-            success: true
-        }))
-    }
-    catch ( error ) {
-
-        if(error.message === "Unauthorized") {
-            res.end(JSON.stringify({
-                success: false,
-                error: "Unauthorized",
-                data: {}
-            }))
-        }
-        else 
-            throw error;
-    }
+function getTokenFromRes(res: HttpResponse): string {
+    return res.headers?.[`Authorization`]?.split(" ")?.pop();
 }
 
 export default {

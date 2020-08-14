@@ -3,6 +3,7 @@ import ChatroomService from "../../../../application/chatroom.service";
 import AlligatorService from "../../../../application/alligator.service";
 
 import { TWebrtcController } from "./index";
+import * as resourcesSchema from "../../../../application/resourcesSchema";
 
 const chatroomService = Container.get(ChatroomService);
 const alligatorService = Container.get(AlligatorService);
@@ -10,15 +11,11 @@ const alligatorService = Container.get(AlligatorService);
 const controllers: {
     [key: string]: TWebrtcController
 } = {
-    async startChatroom(request, reply) {
-        
-        if(request.type !== "startChatroom") 
-            return reply({
-                success: false
-            })
-        
+    async startChatroom(_body, reply) {
 
-        const chatroom = await chatroomService.new(request.body);
+        const body = resourcesSchema.createChatroom.parse(_body);               
+
+        const chatroom = await chatroomService.new(body);
 
         const { slug, valid_until } = chatroom;
 
@@ -29,7 +26,7 @@ const controllers: {
             data: {
                 chatroom
             }
-        })
+        });
     }
 }
 

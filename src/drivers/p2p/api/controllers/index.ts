@@ -1,3 +1,1 @@
-import { TMessageFromPeer } from "types/chatroom";
-
-export type TWebrtcController = (reqest: TMessageFromPeer, reply: (replyBody: {[key: string]: any}) => any) => any;
+export type TWebrtcController = (rawBody: any, context: any, reply: (replyBody: {[key: string]: any}) => any) => any;

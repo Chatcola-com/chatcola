@@ -44,8 +44,6 @@ export default class AlligatorService {
                 publicRSAKey: this.keyService.getPublicKey()
             })
         });
-
-        console.log(result);
     }
     
     async putChatroomCard({slug, valid_until}: { slug: string; valid_until: number }) {
@@ -71,7 +69,6 @@ export default class AlligatorService {
             })
         })
 
-        console.log(result);
     }
     
     async validatePushSubscriptionToken(pushSubscriptionToken: string): Promise<string> {

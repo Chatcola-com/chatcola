@@ -6,7 +6,7 @@
 import jwt from "jsonwebtoken";
 
 import { Container, Service, Inject } from "typedi";
-import { TUserCredentials, TAdminCredentials, ITokenClaims } from "../types/auth";
+import { TUserCredentials, TAdminCredentials, ITokenClaims, TUserTokenClaims, TAdminTokenClaims } from "../types/auth";
 import { AppError } from "../infrastructure/utils";
 
 import { TChatroomRepository } from "../types/infrastructure";
@@ -67,6 +67,24 @@ export default class AuthService {
             throw new AppError("Unauthorized");
         
         return await signToken( { slug: chatroom.slug, type: "admin" } );
+    }
+
+    async validateChatUserToken(token: string): Promise<TUserTokenClaims> {
+        const claims = await this.validateChatToken(token);
+
+        if(claims.type !== "user")
+            throw new AppError("Unauthorized");
+
+        return claims;
+    }
+
+    async validateChatAdminToken(token: string): Promise<TAdminTokenClaims> {
+        const claims = await this.validateChatToken(token);
+
+        if(claims.type !== "admin")
+            throw new AppError("Unauthorized");
+
+        return claims;
     }
 
     async validateChatToken(token: string): Promise<ITokenClaims> {

@@ -4,77 +4,74 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { HttpResponse, HttpRequest } from "uWebSockets.js";
-import { Container } from "typedi";
 
-import MessageService from "../../../../application/message.service";
-import ChatroomManagementService from "../../../../application/chatroom-management.service";
+import * as resourceSchemas from "../../../../application/resourcesSchema";
 
-const chatroomManagementService = Container.get(ChatroomManagementService);
-const messageService = Container.get(MessageService);
+import * as chatroomManagement from "../../../../application/use-cases/chatroom-management";
+import chatroom from "./chatroom";
 
 const clearChatroomMessages = async (res: HttpResponse, req: HttpRequest) => {
 
-    const nDeleted = await messageService.clearAll( res.claims.slug );
+    const result = await chatroomManagement.clearAllMessages(
+        getTokenFromRes(res)
+    )
 
     res.writeStatus(`200 OK`);
-    res.end(JSON.stringify({
-        success: true,
-        data: {
-            nDeleted
-        }
-    }))
+    res.end(JSON.stringify(result))
 }
 
 const deleteChatroom = async (res: HttpResponse, req: HttpRequest) => {
 
-    const slug = res.claims.slug;
-
-    await Promise.all([chatroomManagementService.remove( slug ), messageService.clearAll( slug )]);
+    const result = await chatroomManagement.remove(
+        getTokenFromRes(res)
+    );
 
     res.writeStatus(`200 OK`);
-    res.end(JSON.stringify({
-        success: true
-    }))
+    res.end(JSON.stringify(result))
 }
 
 const kickUser = async (res: HttpResponse, req: HttpRequest) => {
 
-    await chatroomManagementService.kickUser(
-        res.claims.slug,
-        res.params["user_name"]
-    );
+    const { user_name } = resourceSchemas.kickUser.parse(res.body);
+
+    const result = await chatroomManagement.kickUser(
+            res.claims.slug,
+            user_name
+        );
 
     res.writeStatus(`200 OK`);
-    res.end(JSON.stringify({
-        success: true
-    }));
+    res.end(JSON.stringify(result));
 }
 
 const revokeToken = async (res: HttpResponse, req: HttpRequest) => {
 
-    const targetToken = res.params["token"];
+    const { targetToken } = resourceSchemas.revokeToken.parse(res.body);
 
-    await chatroomManagementService.revokeAccessToken(
-        res.claims.slug, 
+    const result = await chatroomManagement.revokeAccessToken(
+        getTokenFromRes(res), 
         targetToken
     );
 
     res.writeStatus(`200 OK`);
-    res.end(JSON.stringify({
-        success: true
-    }));
+    res.end(JSON.stringify(result));
 }
 
 const generateAccessTokens = async (res: HttpResponse, req: HttpRequest) => {
 
-    await chatroomManagementService.generateAccessTokens(res.claims.slug, res.body.amount);
+    const { amount } = resourceSchemas.generateAccessTokens.parse(res.body);
+
+    const result = await chatroomManagement.generateAccessTokens(
+        getTokenFromRes(res),
+        amount
+    );
 
     res.writeStatus(`200 OK`);
-    res.end(JSON.stringify({
-        success: true
-    }));
+    res.end(JSON.stringify(result));
 }
 
+function getTokenFromRes(res: HttpResponse): string {
+    return res.headers?.[`Authorization`]?.split(" ")?.pop();
+}
 
 export default {
     clearChatroomMessages,

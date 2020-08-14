@@ -8,7 +8,6 @@ import { TemplatedApp } from "uWebSockets.js";
 import { HttpMiddlewares as middlewares } from "karuzela";
 import carousel, { validateBody, authenticateForChatroom } from "../middlewares";
 
-import schema from "../schema";
 import Controller from "../controllers/auth";
 
 export default (app: TemplatedApp): void => {
@@ -17,33 +16,24 @@ export default (app: TemplatedApp): void => {
         carousel(
             [
                 middlewares.parseBody,
-                validateBody( schema.auth.login ),
                 Controller.login 
             ]
         ) 
     );
 
-    app.get(`/api/auth/:slug`, 
+    app.post(`/api/auth/type`, 
         carousel(
             [
-                middlewares.parseParams(["slug"]),
+                middlewares.parseBody,
                 Controller.getAuthType
             ]
         )
     );
 
-    app.post(`/api/auth/leave`, 
-        carousel([
-            authenticateForChatroom,
-            Controller.leave
-        ])
-    )
-
     app.post(`/api/auth/admin`, 
         carousel(
             [
                 middlewares.parseBody,
-                validateBody( schema.auth.adminLogin ),
                 Controller.adminLogin
             ]
         )

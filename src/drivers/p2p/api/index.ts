@@ -1,9 +1,12 @@
 import * as zod from "zod";
-import { messageFromPeerSchema } from "../../../types/chatroom";
 
 import ChatroomController from "./controllers/chatroom";
 
 const requestIdSchema = zod.string().nonempty();
+const resourcePathSchema = zod.enum([
+    "startChatroom",
+
+])
 
 export default function bootstrapRTCDataChannel(channel: RTCDataChannel) {
 
@@ -13,18 +16,18 @@ export default function bootstrapRTCDataChannel(channel: RTCDataChannel) {
             const message = JSON.parse(event.data);
 
             const requestId = requestIdSchema.parse(message.requestId);
-            const request = messageFromPeerSchema.parse(message.body);
-    
+            const resourcePath = resourcePathSchema.parse(message.resourcePath);
+
             function reply(body: any) {
                 channel.send(JSON.stringify({
-                    ...body,
-                    requestId
+                    requestId,
+                    body
                 }))
             }
             
-            switch(request.type) {
+            switch(resourcePath) {
                 case "startChatroom": {
-                    return ChatroomController.startChatroom(request, reply)
+                    return ChatroomController.startChatroom(message.body, message.context, reply)
                 };
             }
         }
