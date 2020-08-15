@@ -1,35 +1,39 @@
 import * as zod from "zod";
 
-import ChatroomController from "./controllers/chatroom";
+import Container from "typedi";
+import { TLogger } from "../../../types/infrastructure";
 
-const requestIdSchema = zod.string().nonempty();
-const resourcePathSchema = zod.enum([
-    "startChatroom",
+import * as resourcesSchema from "../../../application/resourcesSchema";
 
-])
+import router from "../../../application/resources/router";
+
+const actualStringSchema = zod.string().nonempty();
+
+const Logger = Container.get<TLogger>("logger");
 
 export default function bootstrapRTCDataChannel(channel: RTCDataChannel) {
 
-    channel.onmessage = (event) => {
+    channel.onmessage = async (event) => {
 
         try {
             const message = JSON.parse(event.data);
 
-            const requestId = requestIdSchema.parse(message.requestId);
-            const resourcePath = resourcePathSchema.parse(message.resourcePath);
+            const requestId = actualStringSchema.parse(message.requestId);
+            const resourcePath = actualStringSchema.parse(message.resourcePath);
+            const context = resourcesSchema.requestContext.parse(message.context);
 
-            function reply(body: any) {
-                channel.send(JSON.stringify({
-                    requestId,
-                    body
-                }))
-            }
-            
-            switch(resourcePath) {
-                case "startChatroom": {
-                    return ChatroomController.startChatroom(message.body, message.context, reply)
-                };
-            }
+            Logger.info(`Webrtc request ${resourcePath}`)
+
+            const result = await router(
+                resourcePath,
+                message.body,
+                context
+            );
+
+            channel.send(JSON.stringify({
+                requestId,
+                body: result
+            }))
         }
         catch ( error ) {
 

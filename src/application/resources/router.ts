@@ -42,10 +42,12 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
     
     let claims: ITokenClaims | undefined;
 
-    if(context.adminToken)
-        claims = await authService.validateChatAdminToken(context.adminToken);
-    else if(context.chatroomToken)
-        claims = await authService.validateChatUserToken(context.chatroomToken);
+    if(context.token) {
+        if(context.tokenType === "admin")
+            claims = await authService.validateChatAdminToken(context.token);
+        else if(context.tokenType === "user")
+            claims = await authService.validateChatUserToken(context.token);
+    }
 
     const hasToken = Boolean(claims?.slug);
     const isChatAdmin = Boolean(hasToken && claims?.type === "admin");

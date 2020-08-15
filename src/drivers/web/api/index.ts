@@ -29,8 +29,8 @@ export default function bootstrapHttp(app: TemplatedApp) {
             resourceUrl,
             res.body,
             {
-                chatroomToken: tokenType === "user" ? token : undefined,
-                adminToken: tokenType === "admin" ? token : undefined
+                tokenType: tokenType === "user" || tokenType === "user" ? tokenType : undefined,
+                token
             }
         )
         
@@ -41,7 +41,6 @@ export default function bootstrapHttp(app: TemplatedApp) {
     });
 
     app.options(`/*`, options);
-
 }
 
 function writeCorsHeaders(res: HttpResponse) {

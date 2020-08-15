@@ -9,12 +9,11 @@ import { TFetcher, TAlligatorWsConnector } from "../types/infrastructure";
 import { TPushMessage } from "types/push";
 
 //@ts-ignore
-import { RTCPeerConnection } from "wrtc";
 
 import infraConfig from "../infrastructure/config";
 import KeyService from "../infrastructure/keys";
-
 const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
+
 
 @Service()
 export default class AlligatorService {
@@ -48,11 +47,12 @@ export default class AlligatorService {
     
     async putChatroomCard({slug, valid_until}: { slug: string; valid_until: number }) {
 
-        const result = await this.fetcher(`/api/chatroomCard/`, {
+        const result = await this.fetcher(`/api/chatroomCard`, {
             method: "POST",
             body: JSON.stringify({
                 slug,
-                validUntil: valid_until
+                validUntil: valid_until,
+                isP2p: infraConfig.driver === "webrtc"
             })
         });
 
@@ -61,14 +61,13 @@ export default class AlligatorService {
     }
 
     async sendPushNotification(subscribersIds: string[], message: TPushMessage) {
-        const result = await this.fetcher(`/api/push/bulkNotify`, {
+        await this.fetcher(`/api/push/bulkNotify`, {
             method: "POST",
             body: JSON.stringify({
                 subscribersIds,
                 message
             })
         })
-
     }
     
     async validatePushSubscriptionToken(pushSubscriptionToken: string): Promise<string> {
