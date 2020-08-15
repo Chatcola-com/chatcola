@@ -11,6 +11,7 @@ import infraConfig from "../../infrastructure/config";
 if(!process.env.PORT)
   process.env.PORT = "7777";
 
+const isProd = ["staging", "production"].includes(process.env.NODE_ENV?.toLowerCase() || "");
 
 const config = {
   
@@ -21,6 +22,7 @@ const config = {
   sentry_dsn: process.env.SENTRY_DSN,
 
   server: {
+    should_use_ssl: !isProd,
     key_file_name: path.resolve(infraConfig.assetsPath, "privkey.pem"),
     cert_file_name: path.resolve(infraConfig.assetsPath, "fullchain.pem")
   },
@@ -34,7 +36,7 @@ function getClientUrl() {
   }
 }
 
-if(config.server.key_file_name) {
+if(config.server.should_use_ssl) {
 
   try {
     fs.readFileSync(config.server.key_file_name);

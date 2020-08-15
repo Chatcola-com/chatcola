@@ -4,18 +4,28 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { EventEmitter } from "events";
-import { WebSocket } from "uWebSockets.js";
+import WebSocket from "ws";
 
 import appEvents from "../../../application/events/events";
 import webEvents from "./events";
 
 import mongoose from "mongoose";
 
-const clients: { [key: string]: Array<WebSocket>} = {};
+type TChatroomSocket = {
+    locals: {
+        slug: string;
+        name: string;
+    }
+    publishToChatroom: (message: string) => any;
+    send: (message: string) => any;
+    close: () => any;   
+}
+
+const clients: { [key: string]: Array<TChatroomSocket>} = {};
     
 export default ( emitter: EventEmitter ) => {
 
-    emitter.on(webEvents.NEW_CLIENT_CONNECTED, async (ws: WebSocket) => {
+    emitter.on(webEvents.NEW_CLIENT_CONNECTED, async (ws: TChatroomSocket) => {
 
         if(!clients[ws.locals.slug])  
             clients[ws.locals.slug] = [];
@@ -31,16 +41,15 @@ export default ( emitter: EventEmitter ) => {
             }
         } ))
 
-        ws.send(JSON.stringify( {
+        ws.send(JSON.stringify({
             type: "whoami",
             data: { 
                 name: ws.locals.name
             }
-        } ))
+        }))
 
-        ws.publish(
-            ws.locals.slug,
-            JSON.stringify( {
+        ws.publishToChatroom(
+            JSON.stringify({
                 type: "user_joined",
                 data: {
                     user_name: ws.locals.name
@@ -49,20 +58,19 @@ export default ( emitter: EventEmitter ) => {
         )
     })
 
-    emitter.on(webEvents.CLIENT_DISCONNECTED, async (ws: WebSocket) => {        
+    emitter.on(webEvents.CLIENT_DISCONNECTED, async (ws: TChatroomSocket) => {        
         
         if(!clients[ws.locals.slug])
             return;
 
         clients[ws.locals.slug] = clients[ws.locals.slug].filter( client => client !== ws );
 
-        const randomSocket = getRandomSocket();
+        const randomSocket = getSocketFromChatroom(ws.locals.slug);
 
         if(!randomSocket)
             return;
 
-        randomSocket.publish(
-            ws.locals.slug,
+        randomSocket.publishToChatroom(
             JSON.stringify( {
                 type: "user_left",
                 data: {
@@ -82,32 +90,31 @@ export default ( emitter: EventEmitter ) => {
 
         emitter.emit(appEvents.NEW_MESSAGE, message);
 
-        const randomSocket = getRandomSocket();
+        const randomSocket = getSocketFromChatroom(slug);
 
         if(randomSocket)
-            randomSocket.publish(slug, JSON.stringify({
+            randomSocket.publishToChatroom(JSON.stringify({
                 type: "message",
                 data: {
                     message
                 }
             }))
 
-        const ws = clients[slug]?.find( client => !client.closed && client.locals.name === user_name);
+        const ws = clients[slug]?.find( client => client.locals.name === user_name);
 
-        if(!ws || ws.closed)
+        if(!ws)
             return;
 
         ws.send(JSON.stringify({ type: "kick" }))
 
-        setTimeout(() => !ws.closed && ws.close(), 250);
+        setTimeout(() => ws.close(), 1000);
     });
 }
 
-function getRandomSocket(): WebSocket | null {
-    for(const key in clients) {
-        if(clients[key].length > 0)
-            return clients[key][0];
-    }
+function getSocketFromChatroom(slug: string): TChatroomSocket | null {
+    if(clients[slug]?.length > 0)
+        return clients[slug][0];
+
     return null;
 }
 

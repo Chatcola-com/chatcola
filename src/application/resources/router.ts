@@ -1,6 +1,6 @@
 import { Container } from "typedi";
 
-import { TRequestContext } from "../resourcesSchema";
+import { TRequestContext } from "./schema";
 import { ITokenClaims } from "../../types/auth";
 
 import AuthService from "../auth.service";
@@ -10,7 +10,7 @@ import * as chatroomManagement from "./chatroom-management";
 import * as messages from "./messages";
 import * as auth from "./auth";
 
-import * as resourcesSchema from "../resourcesSchema";
+import * as resourcesSchema from "./schema";
 import { AppError } from "../../infrastructure/utils";
 import { IKeyService } from "../../types/infrastructure";
 

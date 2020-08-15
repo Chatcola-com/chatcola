@@ -3,7 +3,7 @@ import * as zod from "zod";
 import Container from "typedi";
 import { TLogger } from "../../../types/infrastructure";
 
-import * as resourcesSchema from "../../../application/resourcesSchema";
+import * as resourcesSchema from "../../../application/resources/schema";
 
 import router from "../../../application/resources/router";
 

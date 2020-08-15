@@ -3,54 +3,47 @@
 /*|----------Distribution of this software is only permitted in accordance with the BSL © 1.1 license----------/*/
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
-import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
+import connect from "connect";
 
-import parseBody from "./parseBody";
+import bodyParser from "body-parser";
+import cors from "cors";
+import morgan from "morgan";
+
+import { IncomingMessage, ServerResponse } from "http";
 
 import router from "../../../application/resources/router";
 
-export default function bootstrapHttp(app: TemplatedApp) {
 
-    app.any("/*", async (res: HttpResponse, req: HttpRequest) => {
+export default function bootstrapWebserver() {
 
-        res.onAborted(() => {
-            res.isAborted = true;
-        });
+    const app = connect();
 
-        writeCorsHeaders(res);
+    //@ts-ignore
+    app.use(morgan("dev"));
+    //@ts-ignore
+    app.use(cors({origin: "*"}));
 
-        const [_, tokenType, token] = req.getHeader("authorization").split(" ");
-        const resourceUrl = req.getUrl();
+    app.use(bodyParser.json());
 
-        if(req.getMethod().toLowerCase() !== "get")
-            await parseBody(res, req);
+    app.use( async (req: IncomingMessage, res: ServerResponse) => {
         
+        //@ts-ignore
+        const body = req.body;
+        const resourceUrl = req.url || "/";
+        const [_, tokenType, token] = req.headers["authorization"]?.split(" ") || [null, null, null];
+
         const result = await router(
             resourceUrl,
-            res.body,
+            body,
             {
-                tokenType: tokenType === "user" || tokenType === "user" ? tokenType : undefined,
+                tokenType: tokenType === "user" || tokenType === "admin" ? tokenType : undefined,
                 token
             }
         )
-        
-        if(res.isAborted)  
-            return;
-        res.writeStatus(`200 OK`);
-        res.end(JSON.stringify(result))
-    });
 
-    app.options(`/*`, options);
-}
+        res.writeHead(200);
+        res.end(JSON.stringify(result));
+    })
 
-function writeCorsHeaders(res: HttpResponse) {
-    res.writeHeader(`Access-Control-Allow-Origin`, "*");
-    res.writeHeader(`Access-Control-Allow-Methods`, `*`);
-    res.writeHeader(`Access-Control-Allow-Headers`, `*`);
-    res.writeHeader(`Access-Control-Max-Age`, `-1`);
-}
-
-function options (res: HttpResponse, req: HttpRequest) {
-    writeCorsHeaders(res);
-    res.end();
+    return app;
 }

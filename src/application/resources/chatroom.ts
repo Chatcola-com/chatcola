@@ -2,7 +2,7 @@ import { Container } from "typedi";
 
 import * as zod from "zod";
 
-import * as resourcesSchema from "../resourcesSchema";
+import * as resourcesSchema from "./schema";
 import AlligatorService from "../alligator.service";
 import ChatroomService from "../chatroom.service";
 import ChatroomManagementService from "../chatroom-management.service";

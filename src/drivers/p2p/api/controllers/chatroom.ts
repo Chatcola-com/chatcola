@@ -3,7 +3,7 @@ import ChatroomService from "../../../../application/chatroom.service";
 import AlligatorService from "../../../../application/alligator.service";
 
 import { TWebrtcController } from "./index";
-import * as resourcesSchema from "../../../../application/resourcesSchema";
+import * as resourcesSchema from "../../../../application/resources/schema";
 
 const chatroomService = Container.get(ChatroomService);
 const alligatorService = Container.get(AlligatorService);
