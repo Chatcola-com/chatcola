@@ -10,18 +10,23 @@ import {
 } from "wrtc";
 
 import { Container } from "typedi";
-import { TAlligatorWsConnector } from "types/infrastructure";
+import { TAlligatorWsConnector } from "../../types/infrastructure";
 import config from "./config";
-import bootstrapRTCDataChannel from "./api";
+
+import bootstrapRequestResponseDataChannel from "./api";
+import bootstrapChatroomSocketDataChannel from "./socket";
+
+import AuthService from "../../application/auth.service";
+import { AppError } from "../../infrastructure/utils";
 
 const alligatorWsConnector = Container.get<TAlligatorWsConnector>("alligatorWsConnector");
-
+const authService = Container.get(AuthService);
 
 const peerConnections: {
     [topicId: string]: RTCPeerConnection
 } = {};
 
-const dataChannels: {
+const requestResponseDataChannels: {
     [topicId: string]: RTCDataChannel
 } = {};
 
@@ -38,12 +43,41 @@ export default async function bootstrapP2PServer() {
 
         pc.ondatachannel = ({ channel }) => {
             channel.onopen = () => {
-                dataChannels[message.topicId] = channel;
-                bootstrapRTCDataChannel(channel);
+                channel.onmessage = async (event) => {
+
+                    const message = JSON.parse(event.data.toString());
+                    
+                    if(message?.channelType === "socket") {
+
+                        try {
+                            const claims = await authService.validateChatUserToken(message.chatroomToken);
+
+                            //@ts-ignore
+                            channel.locals = {
+                                name: claims.name,
+                                slug: claims.slug
+                            }
+
+                            bootstrapChatroomSocketDataChannel(channel);
+                        }
+                        catch ( error ) {
+                            channel.close();
+
+                            if( !(error instanceof AppError) || error.shouldReport )
+                                throw error;
+                        }
+                    }
+                    else if(message?.channelType === "requestResponse") {
+                        requestResponseDataChannels[message.topicId] = channel;
+                        bootstrapRequestResponseDataChannel(channel);
+                    }
+
+                    channel.send(JSON.stringify({ kind: "ACK" }));
+                }
             }
 
             channel.onclose = () => {
-                delete dataChannels[message.topicId];
+                delete requestResponseDataChannels[message.topicId];
             }
         }
 

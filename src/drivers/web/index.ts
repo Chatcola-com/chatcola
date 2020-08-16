@@ -25,9 +25,7 @@ const alligatorService = Container.get(AlligatorService);
 
   const Logger = Container.get<TLogger>("logger");
 
-  const webserver = await bootstrapWebserver(config.port);
-
-  Container.set("webserver", webserver);
+  await bootstrapWebserver(config.port);
 
   await alligatorService.sayHello()
     .then(() => Logger.info(`Successfuly connected to Alligator`))

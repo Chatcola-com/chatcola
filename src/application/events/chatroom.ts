@@ -4,33 +4,20 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { EventEmitter } from "events";
-import WebSocket from "ws";
 
-import appEvents from "../../../application/events/events";
-import webEvents from "./events";
-
+import events from "./events";
 import mongoose from "mongoose";
 
-type TChatroomSocket = {
-    locals: {
-        slug: string;
-        name: string;
-    }
-    publishToChatroom: (message: string) => any;
-    send: (message: string) => any;
-    close: () => any;   
-}
-
-const clients: { [key: string]: Array<TChatroomSocket>} = {};
+import { activeSockets, TChatroomSocket } from "../socket/router";
     
 export default ( emitter: EventEmitter ) => {
 
-    emitter.on(webEvents.NEW_CLIENT_CONNECTED, async (ws: TChatroomSocket) => {
+    emitter.on(events.NEW_CLIENT_CONNECTED, async (ws: TChatroomSocket) => {
 
-        if(!clients[ws.locals.slug])  
-            clients[ws.locals.slug] = [];
+        if(!activeSockets[ws.locals.slug])  
+            activeSockets[ws.locals.slug] = [];
 
-        clients[ws.locals.slug].push(ws);   
+        activeSockets[ws.locals.slug].push(ws);   
 
         const active_users = getActiveUsers( ws.locals.slug );
 
@@ -58,12 +45,12 @@ export default ( emitter: EventEmitter ) => {
         )
     })
 
-    emitter.on(webEvents.CLIENT_DISCONNECTED, async (ws: TChatroomSocket) => {        
+    emitter.on(events.CLIENT_DISCONNECTED, async (ws: TChatroomSocket) => {        
         
-        if(!clients[ws.locals.slug])
+        if(!activeSockets[ws.locals.slug])
             return;
 
-        clients[ws.locals.slug] = clients[ws.locals.slug].filter( client => client !== ws );
+        activeSockets[ws.locals.slug] = activeSockets[ws.locals.slug].filter( client => client !== ws );
 
         const randomSocket = getSocketFromChatroom(ws.locals.slug);
 
@@ -80,7 +67,7 @@ export default ( emitter: EventEmitter ) => {
         )
     })
 
-    emitter.on(appEvents.USER_KICKED_OUT, async ({ slug, user_name }) => {       
+    emitter.on(events.USER_KICKED_OUT, async ({ slug, user_name }) => {       
         const message = {
             author: `Server`,
             content: `${user_name} has been kicked out. Bye! 🚀🚀🚀`,
@@ -88,7 +75,7 @@ export default ( emitter: EventEmitter ) => {
             slug
         }
 
-        emitter.emit(appEvents.NEW_MESSAGE, message);
+        emitter.emit(events.NEW_MESSAGE, message);
 
         const randomSocket = getSocketFromChatroom(slug);
 
@@ -100,7 +87,7 @@ export default ( emitter: EventEmitter ) => {
                 }
             }))
 
-        const ws = clients[slug]?.find( client => client.locals.name === user_name);
+        const ws = activeSockets[slug]?.find( client => client.locals.name === user_name);
 
         if(!ws)
             return;
@@ -112,15 +99,15 @@ export default ( emitter: EventEmitter ) => {
 }
 
 function getSocketFromChatroom(slug: string): TChatroomSocket | null {
-    if(clients[slug]?.length > 0)
-        return clients[slug][0];
+    if(activeSockets[slug]?.length > 0)
+        return activeSockets[slug][0];
 
     return null;
 }
 
 function getActiveUsers(slug: string): Array<string> {
 
-    const result = clients[slug].map( ws => ws.locals.name )
+    const result = activeSockets[slug].map( ws => ws.locals.name )
 
     return result;
 }

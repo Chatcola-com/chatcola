@@ -10,11 +10,24 @@ type TSocketContext = {
     slug: string;
 }
 
+export type TChatroomSocket = {
+    locals: {
+        slug: string;
+        name: string;
+    }
+    publishToChatroom: (message: string) => any;
+    send: (message: string) => any;
+    close: () => any;   
+}
+
+export const activeSockets: {
+    [slug: string]: TChatroomSocket[]
+} = {};
+
 export default function socketRouter(body: TParsedBody, context: TSocketContext): TSocketResponse | null {
 
     try {
         const message = incomingMessageSchema.parse(body);
-
 
         switch(message.type) {
             case "ping": return Controller.ping();

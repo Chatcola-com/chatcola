@@ -25,9 +25,7 @@ const alligatorService = Container.get(AlligatorService);
     await alligatorService.sayHelloP2p();
     Logger.info(`Successfuly negotiated keys with alligator!`);
 
-    const webserver = await bootstrapP2PServer();
-
-    Container.set("webserver", webserver);
+    await bootstrapP2PServer();
     
-    Logger.info(`Started webserver on localhost`);
+    Logger.info(`Started p2p webrtc server`);
 })()

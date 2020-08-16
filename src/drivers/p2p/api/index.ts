@@ -11,7 +11,7 @@ const actualStringSchema = zod.string().nonempty();
 
 const Logger = Container.get<TLogger>("logger");
 
-export default function bootstrapRTCDataChannel(channel: RTCDataChannel) {
+export default function bootstrapRequestResponseDataChannel(channel: RTCDataChannel) {
 
     channel.onmessage = async (event) => {
 
