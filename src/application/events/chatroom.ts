@@ -8,11 +8,15 @@ import { EventEmitter } from "events";
 import events from "./events";
 import mongoose from "mongoose";
 
-import { activeSockets, TChatroomSocket } from "../socket/router";
+import { activeSockets, publishToChatroom, TChatroomSocket } from "../socket/activeSockets";
     
 export default ( emitter: EventEmitter ) => {
 
+    console.log(emitter)
+
     emitter.on(events.NEW_CLIENT_CONNECTED, async (ws: TChatroomSocket) => {
+
+        console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEeees")
 
         if(!activeSockets[ws.locals.slug])  
             activeSockets[ws.locals.slug] = [];
@@ -35,7 +39,8 @@ export default ( emitter: EventEmitter ) => {
             }
         }))
 
-        ws.publishToChatroom(
+        publishToChatroom(
+            ws.locals.slug,
             JSON.stringify({
                 type: "user_joined",
                 data: {
@@ -57,7 +62,8 @@ export default ( emitter: EventEmitter ) => {
         if(!randomSocket)
             return;
 
-        randomSocket.publishToChatroom(
+        publishToChatroom(
+            ws.locals.slug,
             JSON.stringify( {
                 type: "user_left",
                 data: {
@@ -80,12 +86,15 @@ export default ( emitter: EventEmitter ) => {
         const randomSocket = getSocketFromChatroom(slug);
 
         if(randomSocket)
-            randomSocket.publishToChatroom(JSON.stringify({
-                type: "message",
-                data: {
-                    message
-                }
-            }))
+            publishToChatroom(
+                randomSocket?.locals.slug,    
+                JSON.stringify({
+                    type: "message",
+                    data: {
+                        message
+                    }
+                })
+            )
 
         const ws = activeSockets[slug]?.find( client => client.locals.name === user_name);
 
@@ -106,7 +115,6 @@ function getSocketFromChatroom(slug: string): TChatroomSocket | null {
 }
 
 function getActiveUsers(slug: string): Array<string> {
-
     const result = activeSockets[slug].map( ws => ws.locals.name )
 
     return result;

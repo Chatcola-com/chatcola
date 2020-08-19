@@ -7,7 +7,7 @@ import { EventEmitter } from "events";
 
 import { Container } from "typedi";
 
-import appEvents from "../events/events";
+import events from "../events/events";
 import Message from "../entities/message";
 import { TSocketResponse } from "./schema";
 
@@ -70,7 +70,7 @@ export function message ({ authorName, slug, content }: {
     content,
   });
 
-  emitter.emit(appEvents.NEW_MESSAGE, message)
+  emitter.emit(events.NEW_MESSAGE, message)
   
   return {
     broadcast: true,

@@ -17,7 +17,6 @@ import bootstrapRequestResponseDataChannel from "./api";
 import bootstrapChatroomSocketDataChannel from "./socket";
 
 import AuthService from "../../application/auth.service";
-import { AppError } from "../../infrastructure/utils";
 
 const alligatorWsConnector = Container.get<TAlligatorWsConnector>("alligatorWsConnector");
 const authService = Container.get(AuthService);
@@ -26,58 +25,36 @@ const peerConnections: {
     [topicId: string]: RTCPeerConnection
 } = {};
 
-const requestResponseDataChannels: {
-    [topicId: string]: RTCDataChannel
-} = {};
-
 export default async function bootstrapP2PServer() {
 
     alligatorWsConnector.subscribe("webrtcoffer", async (message, send) => {
-        
         if(message.type !== "webrtcoffer")
             return;
 
-        const pc: RTCPeerConnection = new _RTCPeerConnection({
-            iceServers: config.iceServers
-        });
+        const pc: RTCPeerConnection = new _RTCPeerConnection({ iceServers: config.iceServers });
 
-        pc.ondatachannel = ({ channel }) => {
-            channel.onopen = () => {
-                channel.onmessage = async (event) => {
+        pc.ondatachannel = async ({ channel }) => {
 
-                    const message = JSON.parse(event.data.toString());
-                    
-                    if(message?.channelType === "socket") {
+            if(channel.label === "dummy")
+                return;
+            else if(channel.label.split("-")[0] === "chatroomSocket") {
+                const chatroomToken = channel.label.substring(15)
 
-                        try {
-                            const claims = await authService.validateChatUserToken(message.chatroomToken);
+                const claims = await authService.validateChatUserToken(chatroomToken!);
+                
+                //@ts-ignore
+                channel.locals = {
+                    name: claims.name,
+                    slug: claims.slug
+                };
 
-                            //@ts-ignore
-                            channel.locals = {
-                                name: claims.name,
-                                slug: claims.slug
-                            }
+                channel.send(JSON.stringify({ kind: "ACK" }));
 
-                            bootstrapChatroomSocketDataChannel(channel);
-                        }
-                        catch ( error ) {
-                            channel.close();
-
-                            if( !(error instanceof AppError) || error.shouldReport )
-                                throw error;
-                        }
-                    }
-                    else if(message?.channelType === "requestResponse") {
-                        requestResponseDataChannels[message.topicId] = channel;
-                        bootstrapRequestResponseDataChannel(channel);
-                    }
-
-                    channel.send(JSON.stringify({ kind: "ACK" }));
-                }
+                bootstrapChatroomSocketDataChannel(channel);
             }
-
-            channel.onclose = () => {
-                delete requestResponseDataChannels[message.topicId];
+            else if(channel.label === "requestResponse") {
+                bootstrapRequestResponseDataChannel(channel);
+                channel.send(JSON.stringify({ kind: "ACK" }));
             }
         }
 
