@@ -12,7 +12,7 @@ export const activeSockets: {
 } = {};
 
 export function publishToChatroom(slug: string, message: string) {
-    activeSockets[slug].forEach( socket => {
+    activeSockets[slug]?.forEach( socket => {
         socket.send(message);
     })
 }
