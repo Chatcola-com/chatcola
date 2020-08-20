@@ -4,6 +4,7 @@ import { Container } from "typedi";
 import { EventEmitter } from "events";
 
 import events from "../../application/events/events";
+import { publishToChatroom } from "../../application/socket/activeSockets";
 
 const eventEmitter = Container.get<EventEmitter>("eventEmitter");
 
@@ -27,8 +28,11 @@ export default function bootstrapChatroomSocketDataChannel(channel: RTCDataChann
         if(!result)
             return;
 
+        //@ts-ignore
+        const slug = channel?.locals?.slug;
+
         if(result.broadcast)
-            channel.send(JSON.stringify(result.body));
+            publishToChatroom(slug, JSON.stringify(result.body))
         else
             channel.send(JSON.stringify(result.body));
     }
