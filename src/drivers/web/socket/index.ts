@@ -13,7 +13,8 @@ import { AppError } from "../../../infrastructure/utils";
 import socketRouter from "../../../application/socket/router";
 import { EventEmitter } from "events";
 
-import webEvents from "../events/events";
+import events from "../../../application/events/events";
+import { publishToChatroom } from "../../../application/socket/activeSockets";
 
 const authService = Container.get(AuthService);
 const eventEmitter = Container.get<EventEmitter>("eventEmitter");
@@ -25,29 +26,16 @@ export default function websocketLoader(server: Server) {
         verifyClient: authenticatePreSocket
     });
 
-    function publishToSlug(slug: string, message: string) { 
-        wss.clients.forEach( ws => {
-            
-            //@ts-ignore
-            const currentClientSlug = ws?.locals?.slug;
-
-            if(currentClientSlug === slug)
-                ws.send(message);
-        })
-    }
 
     wss.on("connection", function(ws, req) {
 
         //@ts-ignore
         ws.locals = req.locals;
-        //@ts-ignore
-        ws.publishToChatroom = (message: string) => publishToSlug(ws.locals.slug, message);
 
-
-        eventEmitter.emit(webEvents.NEW_CLIENT_CONNECTED, ws);
+        eventEmitter.emit(events.NEW_CLIENT_CONNECTED, ws);
 
         ws.on("close", () => {
-            eventEmitter.emit(webEvents.CLIENT_DISCONNECTED, ws);
+            eventEmitter.emit(events.CLIENT_DISCONNECTED, ws);
         })
        
         ws.on("message", function(data) {
@@ -62,8 +50,9 @@ export default function websocketLoader(server: Server) {
 
                 if(!result)
                     return;
+
                 else if(result.broadcast) 
-                    publishToSlug(context.slug, JSON.stringify(result.body));
+                    publishToChatroom(context.slug, JSON.stringify(result.body));
                 else 
                     ws.send(JSON.stringify(result.body));
                 
@@ -110,26 +99,3 @@ async function authenticatePreSocket({ req }: any, done: any) {
 
     
 }
-
-/*import uWS from "uWebSockets.js";
-
-import ms from "ms";
-
-import { open, message, close, upgrade } from "./controllers";
-
-
-export default (app: uWS.TemplatedApp) => {
-
-    app.ws('/s/:chatUserToken', {
-        
-        compression: 0,
-        maxPayloadLength: 16 * 1024 * 1024,
-        idleTimeout: ms("1 hour") * 1000,
-        
-        upgrade,
-        open,
-        message,
-        close
-    });
-
-}*/

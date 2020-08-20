@@ -11,7 +11,6 @@ import { TLogger } from "../../types/infrastructure";
 
 import bootstrapApp from "../../index";
 import bootstrapWebserver from "./server";
-import bootstrapWebEvents from "./events/index";
 
 import config from "./config";
 
@@ -30,9 +29,6 @@ const alligatorService = Container.get(AlligatorService);
   await alligatorService.sayHello()
     .then(() => Logger.info(`Successfuly connected to Alligator`))
     .catch((error: any) => Logger.error(error, `Failed connect to Alligator`))
-
-
-  bootstrapWebEvents();
 
   Logger.info(`Started webserver on localhost:${config.port}`)
 
