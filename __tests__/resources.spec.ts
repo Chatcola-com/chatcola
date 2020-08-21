@@ -126,4 +126,54 @@ describe("Resources router", () => {
       );
     });
   });
+
+  describe("Authentication", () => {
+    it("Should allow to get public RSA key without token", async () => {
+      const publicRSAKeyResult = await router(`/api/publicRSAKey`, {}, {});
+
+      expect(publicRSAKeyResult.success).toEqual(true);
+
+      expect(publicRSAKeyResult.data?.publicRSAKey).toBeTruthy();
+    });
+
+    it("Should allow to get chatroom auth type without token", async () => {
+      const creationResult = await router(
+        `/api/chatroom/create`,
+        {
+          ...sampleChatroom,
+          auth_type: "access_tokens",
+          access_tokens_amount: 5,
+        },
+        {}
+      );
+
+      const { chatroom } = creationResult.data;
+
+      const authTypeResult = await router(
+        `/api/auth/type`,
+        {
+          slug: chatroom.slug,
+        },
+        {}
+      );
+
+      expect(authTypeResult.success).toEqual(true);
+      expect(authTypeResult.data?.auth_type).toEqual("access_tokens");
+    });
+  });
+
+  describe("Various", () => {
+    it("Should report 404 error on unknown route", async () => {
+      const unknownResult = await router(
+        `/definetely/not/an/existing/route/`,
+        {},
+        {}
+      );
+
+      expect(unknownResult.success).toEqual(false);
+      expect(unknownResult.error).toMatchInlineSnapshot(
+        `"404 Route not found"`
+      );
+    });
+  });
 });
