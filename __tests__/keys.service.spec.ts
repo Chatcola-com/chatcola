@@ -5,11 +5,13 @@
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import KeyService from "../src/infrastructure/keys";
 
+const store: {[key: string]: any} = {};
+
 const inMemoryKeyStore = {
-    store: {},
+    store,
     incrementChatroomCount() {},
-    setItem(key: string, val: any) { this.store[key] = val;  },
-    getItem(key: string) { return this.store[key]; }
+    setItem(key: string, val: any): any { this.store[key] = val;  },
+    getItem(key: string): any { return this.store[key]; }
 }
 
 const keyService = new KeyService(

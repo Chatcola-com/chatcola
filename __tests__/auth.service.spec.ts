@@ -53,11 +53,11 @@ describe("Authentication service", () => {
     const chatroomAfter = await chatroomService.getDetailed(slug);
 
     expect(
-      chatroomAfter.users.length
+      chatroomAfter?.users.length
     ).toEqual(0);
 
     expect(
-      chatroomAfter.banned_users.length
+      chatroomAfter?.banned_users.length
     ).toEqual(0);
   })
 

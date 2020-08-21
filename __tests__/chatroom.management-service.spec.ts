@@ -37,7 +37,7 @@ describe("Chatroom management service", () => {
         const chatroom = await chatroomService.getDetailed(slug);
         
         expect(
-            chatroom.access_tokens.findIndex( ({ token }) => token === revokedToken )
+            chatroom?.access_tokens.findIndex( ({ token }) => token === revokedToken )
         ).not.toBeGreaterThan(-1)
     });
 
@@ -58,11 +58,11 @@ describe("Chatroom management service", () => {
         const chatroomAfter = await chatroomService.getDetailed(slug);
 
         expect(
-            chatroomAfter.users.length
+            chatroomAfter?.users.length
         ).toEqual(1);
 
         expect(
-            chatroomAfter.users[0].name
+            chatroomAfter?.users[0].name
         ).toEqual("@"+not_kicked_user_name);
     });
     
@@ -95,7 +95,7 @@ describe("Chatroom management service", () => {
         const chatroomAfter = await chatroomService.getDetailed(slug);
 
         expect(
-            chatroomAfter.access_tokens.length
+            chatroomAfter?.access_tokens.length
         ).toEqual( initialAmount + addedAmount );
     });
 
@@ -115,13 +115,13 @@ describe("Chatroom management service", () => {
         const chatroomAfter = await chatroomService.getDetailed(slug);
 
         expect(
-            chatroomAfter.access_tokens.length
+            chatroomAfter?.access_tokens.length
         ).toEqual(
             initialAmount - 1
         );
 
         expect(
-            chatroomAfter.access_tokens.findIndex( t => t.token === targetToken )
+            chatroomAfter?.access_tokens.findIndex( t => t.token === targetToken )
         ).toBeLessThan(
             0
         )

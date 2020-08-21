@@ -11,7 +11,8 @@ export async function kickUser(slug: string, user_name: string) {
     await chatroomManagementService.kickUser(slug, user_name);
 
     return {
-        success: true
+        success: true,
+        data: {}
     }
 }
 
@@ -20,7 +21,8 @@ export async function revokeAccessToken(slug: string, targetToken: string) {
     await chatroomManagementService.revokeAccessToken(slug, targetToken);
 
     return {
-        success: true
+        success: true,
+        data: {}
     }
 }
 
@@ -29,7 +31,8 @@ export async function generateAccessTokens(slug: string, amount: number) {
     await chatroomManagementService.generateAccessTokens(slug, amount);
 
     return {
-        success: true
+        success: true,
+        data: {}
     }
 }
 
@@ -41,7 +44,8 @@ export async function remove(slug: string) {
     ])
 
     return {
-        success: true
+        success: true,
+        data: {}
     }
 }
 

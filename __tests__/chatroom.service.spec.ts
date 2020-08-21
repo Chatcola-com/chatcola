@@ -152,11 +152,11 @@ describe("Chatroom service", () => {
             await chatroomService.getDetailed(chatroom.slug);
 
         expect(
-            typeof chatroomAfter.users[0].subscription_id
+            typeof chatroomAfter?.users[0].subscription_id
         ).toEqual("string");
 
         expect(
-            chatroomAfter.users[0].subscription_id
+            chatroomAfter?.users[0].subscription_id
         ).toEqual(subscriptionId)
     });
 

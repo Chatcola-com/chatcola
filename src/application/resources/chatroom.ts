@@ -39,10 +39,13 @@ export async function getBasic(slug: string) {
 
     return chatroom ? {
         success: true,
-        data: chatroom
+        data: {
+            chatroom
+        }
     } : {
         success: false,
-        error: "Not found"
+        error: "Not found",
+        data: {}
     }
     
 }
@@ -53,10 +56,13 @@ export async function getDetailed(slug: string) {
 
     return chatroom ? {
         success: true,
-        data: chatroom
+        data: {
+            chatroom
+        }
     } : {
         success: false,
-        error: "Not found"
+        error: "Not found",
+        data: {}
     }
 }
 
@@ -68,7 +74,8 @@ export async function leave(slug: string, name: string) {
     );
 
     return {
-        success: true
+        success: true,
+        data: {}
     }
 }
 
@@ -106,6 +113,7 @@ export async function addSubscriptionToUser(chatroomToken: string, pushSubscript
     });
 
     return {
-        success: true
+        success: true,
+        data: {}
     }
 }

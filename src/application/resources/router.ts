@@ -42,7 +42,11 @@ export default async function wrappedResourceRouter(resourcePath: string, body: 
     }
 }
 
-async function resourceRouter(resourcePath: string, body: {[key: string]: any}, context: TRequestContext) {
+async function resourceRouter(resourcePath: string, body: {[key: string]: any}, context: TRequestContext): Promise<{
+    success: boolean,
+    data: any,
+    error?: string
+}> {
     
     let claims: ITokenClaims | undefined;
 
@@ -172,12 +176,15 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
         case "/api/publicRSAKey": {
             return {
                 success: true,
-                publicRSAKey: keyService.getPublicKey()
+                data: {
+                    publicRSAKey: keyService.getPublicKey()
+                }
             }
         }
         default: {
             return {
                 success: false,
+                data: {},
                 error: "404 Route not found"
             }
         }

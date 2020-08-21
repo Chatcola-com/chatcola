@@ -9,7 +9,7 @@ import ms from "ms";
 
 describe("Chatroom domain entity", () => {
 
-    let chatroom;
+    let chatroom: Chatroom;
 
     beforeEach(() => {
         chatroom = Chatroom.createNew({

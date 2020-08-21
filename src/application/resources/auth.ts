@@ -26,7 +26,8 @@ export async function enterChatroom(details: zod.infer< typeof resourcesSchema.e
         if( error instanceof AppError ) {
             return {
                 success: false,
-                error: error.message
+                error: error.message,
+                data: {}
             }
         }
         else
@@ -47,7 +48,8 @@ export async function enterManagingChatroom(details: zod.infer< typeof resources
         if( error instanceof AppError ) {
             return {
                 success: false,
-                error: error.message
+                error: error.message,
+                data: {}
             }
         }
         else
@@ -62,7 +64,8 @@ export async function getAuthType(slug: string) {
     if(!chatroom) {
         return{
             success: false,
-            error: "Not found"
+            error: "Not found",
+            data: {}
         }
     }
 
