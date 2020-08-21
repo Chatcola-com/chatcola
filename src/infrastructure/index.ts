@@ -65,7 +65,7 @@ Container.set("keyValueStore", keyValueStore);
 Container.set("keyservice", new KeyService(keyValueStore));
 
 Container.set("alligatorFetcher", alligatorFetcher(THIS_INSTANCE_ADDRESS));
-Container.set("alligatorWsConnector", getAlligatorWsConnector(THIS_INSTANCE_ADDRESS))
+Container.set("alligatorWsConnector", getAlligatorWsConnector(THIS_INSTANCE_ADDRESS,))
 
 const { 
     chatroomRepository,

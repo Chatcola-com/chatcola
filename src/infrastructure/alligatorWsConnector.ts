@@ -14,6 +14,10 @@ import WebSocket from "ws";
 
 import { v4 as uuidv4 } from "uuid";
 
+import KeyService from "../infrastructure/keys";
+
+//const keyService = Container.get(KeyService);
+
 let alligatorConection: null | WebSocket;
 
 type TAlligatorMessageHandler = (message: TMessageFromAlligator, send: (message: TMessageToAlligator) => any) => any;
@@ -61,7 +65,7 @@ function bootstrapAlligatorWsConnection() {
     });
 };
 
-export default function getAlligatorWsConnector(THIS_INSTANCE_ADDRESS: string): TAlligatorWsConnector {
+export default function getAlligatorWsConnector(THIS_INSTANCE_ADDRESS: string, ): TAlligatorWsConnector {
 
     connectToAlligator(THIS_INSTANCE_ADDRESS);
 
@@ -105,16 +109,21 @@ async function connectToAlligator(THIS_INSTANCE_ADDRESS: string): Promise<void> 
 
     const Logger = Container.get<TLogger>("logger");
 
+    const keyService = Container.get<KeyService>("keyservice");
 
     const agent = new https.Agent({
         rejectUnauthorized: process.env.NODE_ENV?.toLowerCase?.() !== "development"
     });
     
     return new Promise( (r) => {
+
+        const signedTimestamp = Date.now().toString()
+        const timestampSignature = keyService.getMessageSignature(`${THIS_INSTANCE_ADDRESS}-${signedTimestamp}`)
+
         const ws = new WebSocket(`wss://${infraConfig.delegator_url}/s/chatcolaInstance`, {
             agent,
             headers: {
-                "x-myname": THIS_INSTANCE_ADDRESS,
+                "x-timestamp-signature": `${THIS_INSTANCE_ADDRESS} ${signedTimestamp} ${timestampSignature}`,
             }
         })
         
