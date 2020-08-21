@@ -40,15 +40,12 @@ export default function bootstrapWebserver() {
         //@ts-ignore
         const body = req.body;
         const resourceUrl = req.url || "/";
-        const [_, tokenType, token] = req.headers["authorization"]?.split(" ") || [null, null, null];
+        const [_, token] = req.headers["authorization"]?.split(" ") || [null, null];
 
         const result = await router(
             resourceUrl,
             body,
-            {
-                tokenType: tokenType === "user" || tokenType === "admin" ? tokenType : undefined,
-                token
-            }
+            { token }
         )
 
         res.writeHead(200);

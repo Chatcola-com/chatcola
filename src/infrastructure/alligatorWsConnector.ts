@@ -47,7 +47,7 @@ function bootstrapAlligatorWsConnection() {
         try {
             messageFromAlligatorSchema.parse(JSON.parse(data.toString()));
         } catch (error) {
-            console.error(`Failed to parse message from alligator: `, error, data.toString());
+            return console.error(`Failed to parse message from alligator: `, error, data.toString());
         }
 
         const message = 

@@ -43,7 +43,6 @@ export const enterManagingChatroom = zod.object({
 })
 
 export const requestContext = zod.object({
-    tokenType: zod.enum(["user", "admin"]).optional().nullable(),
     token: zod.string().nonempty().optional().nullable()
 })
 

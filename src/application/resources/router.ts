@@ -50,12 +50,12 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
     
     let claims: ITokenClaims | undefined;
 
-    if(context.token) {
-        if(context.tokenType === "admin")
-            claims = await authService.validateChatAdminToken(context.token);
-        else if(context.tokenType === "user")
-            claims = await authService.validateChatUserToken(context.token);
-    }
+    if(
+        context.token &&
+        (typeof context.token) === "string" &&
+        !(["null", "undefined", ""].includes(context.token))
+    )
+        claims = await authService.validateChatToken(context.token);
 
     const hasToken = Boolean(claims?.slug);
     const isChatAdmin = Boolean(hasToken && claims?.type === "admin");
@@ -67,7 +67,7 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
 
     function throwIfNoToken() {
         if( !hasToken ) 
-            throw new AppError(`Unauthorized: no token at ${resourcePath}`);
+            throw new AppError(`Unauthorized: no token (user or admin) at ${resourcePath}`);
     }
 
     function throwIfNotUser() {
