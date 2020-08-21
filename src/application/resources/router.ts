@@ -13,6 +13,7 @@ import * as auth from "./auth";
 import * as resourcesSchema from "./schema";
 import { AppError } from "../../infrastructure/utils";
 import { IKeyService } from "../../types/infrastructure";
+import { ZodError } from "zod";
 
 const keyService = Container.get<IKeyService>("keyservice");
 const authService = Container.get(AuthService);
@@ -24,8 +25,11 @@ export default async function wrappedResourceRouter(resourcePath: string, body: 
     } catch ( error ) {
         
         if( 
-            error instanceof AppError  &&  
-            !error.shouldReport 
+            error instanceof ZodError ||
+            (
+                error instanceof AppError  &&  
+                !error.shouldReport 
+            )
         ) {
             return {
                 success: false,

@@ -1,13 +1,14 @@
 {
   "name": "chatcola-server",
   "version": "2.0.10",
-  "main": "build/index.js",
+  "main": "build/p2p/index.js",
   "bin": {
-    "chatcola-server": "./build/index.js"
+    "chatcola-server-http": "./build/http/index.js",
+    "chatcola-server": "./build/p2p/index.js"
   },
   "author": "@anteeek <antekpapiewski@gmail.com>",
   "private": false,
-  "license": "BSL-1.1 (./LICENSE.MD)",
+  "license": "BSL-1.1 (/LICENSE.MD)",
   "devDependencies": {
     "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.10.3",
@@ -15,8 +16,6 @@
     "@types/app-root-path": "^1.2.4",
     "@types/body-parser": "^1.19.0",
     "@types/connect": "^3.4.33",
-    "@types/cors": "^2.8.7",
-    "@types/hapi__joi": "^17.1.0",
     "@types/jest": "^26.0.4",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/lowdb": "^1.0.9",
@@ -32,7 +31,6 @@
     "@types/uuid": "^8.0.0",
     "@types/web-push": "^3.3.0",
     "@types/ws": "^7.2.6",
-    "@types/yup": "^0.29.3",
     "babel-jest": "^26.1.0",
     "cross-env": "^7.0.2",
     "jest": "^26.0.1",
@@ -50,17 +48,14 @@
     "deploy": "./scripts/deploy"
   },
   "dependencies": {
-    "@hapi/joi": "^17.1.1",
     "@sentry/integrations": "^5.15.5",
     "@sentry/node": "^5.15.5",
     "@zeit/ncc": "^0.22.3",
     "app-root-path": "^3.0.0",
     "body-parser": "^1.19.0",
     "connect": "^3.7.0",
-    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
-    "karuzela": "^0.3.0",
     "lowdb": "^1.0.0",
     "mongodb": "^3.5.9",
     "mongoose": "^5.9.15",
@@ -73,13 +68,11 @@
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
     "typedi": "^0.8.0",
-    "uWebSockets.js": "uNetworking/uWebSockets.js#v18.1.0",
     "uuid": "^8.1.0",
     "web-push": "^3.4.4",
     "winston": "^3.2.1",
     "wrtc": "^0.4.6",
     "ws": "^7.3.1",
-    "yup": "^0.29.1",
     "zod": "^1.10.1"
   }
 }

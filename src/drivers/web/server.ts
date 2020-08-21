@@ -9,7 +9,6 @@ import socketLoader from "./socket";
 
 import fs from "fs";
 
-import http, { IncomingMessage, ServerResponse } from "http";
 import https from "https";
 
 
@@ -21,14 +20,11 @@ export default function bootstrapWebserver(port: number) {
 
         const app = apiLoader();
 
-        const server = config.server.should_use_ssl ? 
-            https.createServer({ 
+        const server = https.createServer({ 
                 key: fs.readFileSync(config.server.key_file_name),
                 cert: fs.readFileSync(config.server.cert_file_name)
             }, app)
-        :
-            http.createServer({}, app);
-
+        
         socketLoader(server);
 
         server.listen(config.port, "0.0.0.0");

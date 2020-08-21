@@ -3,30 +3,40 @@
 /*|----------Distribution of this software is only permitted in accordance with the BSL © 1.1 license----------/*/
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
-import connect from "connect";
+import connect, { NextFunction } from "connect";
 
 import bodyParser from "body-parser";
-import cors from "cors";
 import morgan from "morgan";
 
 import { IncomingMessage, ServerResponse } from "http";
 
 import router from "../../../application/resources/router";
+import { AppError } from "../../../infrastructure/utils";
 
 
 export default function bootstrapWebserver() {
 
     const app = connect();
 
-    //@ts-ignore
-    app.use(morgan("dev"));
-    //@ts-ignore
-    app.use(cors({origin: "*"}));
 
     app.use(bodyParser.json());
 
-    app.use( async (req: IncomingMessage, res: ServerResponse) => {
-        
+    //@ts-ignore
+    app.use(morgan("dev"));
+
+    app.use((req: IncomingMessage, res: ServerResponse, next: NextFunction) => {
+
+        res.setHeader(`Access-Control-Allow-Origin`, `*`);
+        res.setHeader(`Access-Control-Allow-Methods`, `*`);
+        res.setHeader(`Access-Control-Allow-Headers`, `*`)
+        res.setHeader(`Access-Control-Allow-Origin`, `*`);
+        res.setHeader(`Access-Control-Max-Age`, `3600`);
+
+        next();
+    });
+
+
+    app.use( async (req: IncomingMessage, res: ServerResponse, next: NextFunction) => {        
         //@ts-ignore
         const body = req.body;
         const resourceUrl = req.url || "/";

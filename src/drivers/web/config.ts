@@ -11,7 +11,6 @@ import infraConfig from "../../infrastructure/config";
 if(!process.env.PORT)
   process.env.PORT = "7777";
 
-const isProd = ["staging", "production"].includes(process.env.NODE_ENV?.toLowerCase() || "");
 
 const config = {
   
@@ -22,7 +21,6 @@ const config = {
   sentry_dsn: process.env.SENTRY_DSN,
 
   server: {
-    should_use_ssl: !isProd,
     key_file_name: path.resolve(infraConfig.assetsPath, "privkey.pem"),
     cert_file_name: path.resolve(infraConfig.assetsPath, "fullchain.pem")
   },
@@ -36,21 +34,18 @@ function getClientUrl() {
   }
 }
 
-if(config.server.should_use_ssl) {
-
-  try {
-    fs.readFileSync(config.server.key_file_name);
-    fs.readFileSync(config.server.cert_file_name);
-  }
-  catch( err ) {
-    console.error(`Error reading SSL keys: `, err.message);
-
-    if(err.code === "ENOENT")
-      process.exit(2);
-    else
-      throw err;
-  }
-
+try {
+  fs.readFileSync(config.server.key_file_name);
+  fs.readFileSync(config.server.cert_file_name);
 }
+catch( err ) {
+  console.error(`Error reading SSL keys: `, err.message);
+
+  if(err.code === "ENOENT")
+    process.exit(2);
+  else
+    throw err;
+}
+
 
 export default config;

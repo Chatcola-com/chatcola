@@ -111,7 +111,7 @@ async function connectToAlligator(THIS_INSTANCE_ADDRESS: string): Promise<void> 
     });
     
     return new Promise( (r) => {
-        const ws = new WebSocket(`wss://${infraConfig.delegator_url}/s/chatcolaInstancep2p`, {
+        const ws = new WebSocket(`wss://${infraConfig.delegator_url}/s/chatcolaInstance`, {
             agent,
             headers: {
                 "x-myname": THIS_INSTANCE_ADDRESS,
