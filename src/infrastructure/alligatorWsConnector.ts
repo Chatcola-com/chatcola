@@ -111,8 +111,6 @@ async function connectToAlligator(THIS_INSTANCE_ADDRESS: string): Promise<void> 
     const Logger = Container.get<TLogger>("logger");
 
     const keyService = Container.get<KeyService>("keyservice");
-
-    await keyService.waitForReady();
     
     const agent = new https.Agent({
         rejectUnauthorized: process.env.NODE_ENV?.toLowerCase?.() !== "development"

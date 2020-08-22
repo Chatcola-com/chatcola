@@ -65,7 +65,6 @@ Container.set("keyValueStore", keyValueStore);
 Container.set("keyservice", new KeyService(keyValueStore));
 
 Container.set("alligatorFetcher", alligatorFetcher(THIS_INSTANCE_ADDRESS));
-Container.set("alligatorWsConnector", getAlligatorWsConnector(THIS_INSTANCE_ADDRESS))
 
 const { 
     chatroomRepository,
@@ -84,6 +83,8 @@ export default async function loadInfrastructure() {
 
     await keyService.init();
     Logger.info(`Successfuly initialized keys!`);
+
+    Container.set("alligatorWsConnector", getAlligatorWsConnector(THIS_INSTANCE_ADDRESS))
 
     await initDatabase();
     Logger.info(`Successfuly connected to the database!`)

@@ -11,7 +11,7 @@ import AlligatorService from "../alligator.service";
 
 import infraConfig from "../../infrastructure/config";
 
-const jobScheudler = Container.get<TJobScheduler>("jobScheduler");
+const jobScheduler = Container.get<TJobScheduler>("jobScheduler");
 
 const chatroomService = Container.get(ChatroomService);
 const messageService = Container.get(MessageService);
@@ -19,10 +19,10 @@ const alligatorService = Container.get(AlligatorService);
 
 export default async function initJobs() {
     
-    jobScheudler.schedule("* * * * *", () => chatroomService.clearExpired());
-    jobScheudler.schedule("* * * * *", () => messageService.clearStale());
+    jobScheduler.schedule("* * * * *", () => chatroomService.clearExpired());
+    jobScheduler.schedule("* * * * *", () => messageService.clearStale());
 
-    jobScheudler.schedule("0 * * * *", () => {
+    jobScheduler.schedule("0 * * * *", () => {
 
         if(infraConfig.driver === "http")
             alligatorService.sayHello()

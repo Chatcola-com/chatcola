@@ -17,63 +17,42 @@ export default class KeyService implements IKeyService {
         private keyValueStore: TKeyValueStore,
     ) {};
 
-
-    private initializationPromise?: Promise<void>;
-
-    async waitForReady() {
-        await new Promise(r => {
-            const interval = setInterval((() => {
-                if(this.initializationPromise)
-                    r();
-            }).bind(this), 100);
-        })
-
-        return await this.initializationPromise;
-    }
-
     async init(): Promise<void> {
+        const retrievedPublicKey = this.keyValueStore.getItem(PUBLIC_KEY_KEY);
+        const retrievedPrivateKey = this.keyValueStore.getItem(PRIVATE_KEY_KEY);
 
-        this.initializationPromise = new Promise( async r => {
-            const retrievedPublicKey = this.keyValueStore.getItem(PUBLIC_KEY_KEY);
-            const retrievedPrivateKey = this.keyValueStore.getItem(PRIVATE_KEY_KEY);
-    
-            // Note that this is a heuristic check only. Later a node-forge isKeyValid version will be added
-            if(
-                ((typeof retrievedPublicKey) === "string" && retrievedPublicKey.length > 20) &&
-                ((typeof retrievedPrivateKey) === "string" && retrievedPrivateKey.length > 20)
-            )
-                return;
-            
-            
-            const { privateKey, publicKey } = await new Promise( (resolve, reject) => {
-                crypto.generateKeyPair('rsa', {
-                    modulusLength: 2048,
-                    publicKeyEncoding: {
-                        type: 'spki',
-                        format: 'pem'
-                    },
-                    privateKeyEncoding: {
-                        type: 'pkcs8',
-                        format: 'pem'
-                    }
-                    }, (err, publicKey, privateKey) => {
-                    if(err) 
-                        return reject(err);
-                    else
-                        return resolve({
-                            publicKey,
-                            privateKey
-                        })
-                });
+        // Note that this is a heuristic check only. Later a node-forge isKeyValid version will be added
+        if(
+            ((typeof retrievedPublicKey) === "string" && retrievedPublicKey.length > 20) &&
+            ((typeof retrievedPrivateKey) === "string" && retrievedPrivateKey.length > 20)
+        )
+            return;
+        
+        
+        const { privateKey, publicKey } = await new Promise( (resolve, reject) => {
+            crypto.generateKeyPair('rsa', {
+                modulusLength: 2048,
+                publicKeyEncoding: {
+                    type: 'spki',
+                    format: 'pem'
+                },
+                privateKeyEncoding: {
+                    type: 'pkcs8',
+                    format: 'pem'
+                }
+                }, (err, publicKey, privateKey) => {
+                if(err) 
+                    return reject(err);
+                else
+                    return resolve({
+                        publicKey,
+                        privateKey
+                    })
             });
-    
-            this.keyValueStore.setItem(PRIVATE_KEY_KEY, privateKey);
-            this.keyValueStore.setItem(PUBLIC_KEY_KEY, publicKey);
-            
-            r();
-        })
-    
-        return await this.initializationPromise;
+        });
+
+        this.keyValueStore.setItem(PRIVATE_KEY_KEY, privateKey);
+        this.keyValueStore.setItem(PUBLIC_KEY_KEY, publicKey);
     }
 
     getPublicKey() {
