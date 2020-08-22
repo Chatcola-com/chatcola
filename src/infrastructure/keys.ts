@@ -6,6 +6,7 @@
 import crypto from "crypto";
 
 import { IKeyService, TKeyValueStore } from "../types/infrastructure";
+import { sleep } from "./utils";
 
 const PRIVATE_KEY_KEY = "CHATCOLA_SERVER_PRIVATE_KEY";
 const PUBLIC_KEY_KEY = "CHATCOLA_SERVER_PUBLIC_KEY";
@@ -16,12 +17,27 @@ export default class KeyService implements IKeyService {
         private keyValueStore: TKeyValueStore,
     ) {};
 
+
+    private initializationPromise?: Promise<void>;
+
+    async waitForReady() {
+        await new Promise(r => {
+            const interval = setInterval((() => {
+                if(this.initializationPromise)
+                    r();
+            }).bind(this), 100);
+        })
+
+        return await this.initializationPromise;
+    }
+
     async init(): Promise<void> {
-    
+
+        this.initializationPromise = new Promise( async r => {
             const retrievedPublicKey = this.keyValueStore.getItem(PUBLIC_KEY_KEY);
             const retrievedPrivateKey = this.keyValueStore.getItem(PRIVATE_KEY_KEY);
-
-            // Note that this is a heuristic check only. Later a node-forge version will be added
+    
+            // Note that this is a heuristic check only. Later a node-forge isKeyValid version will be added
             if(
                 ((typeof retrievedPublicKey) === "string" && retrievedPublicKey.length > 20) &&
                 ((typeof retrievedPrivateKey) === "string" && retrievedPrivateKey.length > 20)
@@ -33,14 +49,14 @@ export default class KeyService implements IKeyService {
                 crypto.generateKeyPair('rsa', {
                     modulusLength: 2048,
                     publicKeyEncoding: {
-                      type: 'spki',
-                      format: 'pem'
+                        type: 'spki',
+                        format: 'pem'
                     },
                     privateKeyEncoding: {
-                      type: 'pkcs8',
-                      format: 'pem'
+                        type: 'pkcs8',
+                        format: 'pem'
                     }
-                  }, (err, publicKey, privateKey) => {
+                    }, (err, publicKey, privateKey) => {
                     if(err) 
                         return reject(err);
                     else
@@ -49,10 +65,15 @@ export default class KeyService implements IKeyService {
                             privateKey
                         })
                 });
-            })
-
+            });
+    
             this.keyValueStore.setItem(PRIVATE_KEY_KEY, privateKey);
             this.keyValueStore.setItem(PUBLIC_KEY_KEY, publicKey);
+            
+            r();
+        })
+    
+        return await this.initializationPromise;
     }
 
     getPublicKey() {

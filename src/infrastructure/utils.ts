@@ -32,3 +32,9 @@ export class AppError extends Error {
 type TAppErrorOptions = {
     shouldReport: boolean
 }
+
+export async function sleep(time: number) {
+    return new Promise(r => {
+        setTimeout(r, time);
+    })
+}

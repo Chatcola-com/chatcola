@@ -35,7 +35,7 @@ export default {
 
     assetsPath,
 
-    inMemoryDatabase: process.env.NODE_ENV === "test",
+    inMemoryDatabase: process.env.NODE_ENV === "test" || process.env.MEMORY === "true",
 
     mongoURL: process.env.MONGO_URI,
 
@@ -57,7 +57,6 @@ export default {
     driver: getDriverType(),
     
 }
-
 
 function getDriverType(): "http" | "webrtc" {
   if(process.env.CHATCOLA_DRIVER && ["http", "webrtc"].includes(process.env.CHATCOLA_DRIVER))

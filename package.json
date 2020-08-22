@@ -46,6 +46,7 @@
     "dev": "cross-env NODE_ENV=development nodemon src/drivers/web",
     "dev:p2p": "cross-env NODE_ENV=development nodemon src/drivers/p2p",
     "build": "./scripts/build",
+    "memory": "NODE_ENV=development MEMORY=true THIS_INSTANCE_ADDRESS=localhost:7777 nodemon src/drivers/web",
     "deploy": "./scripts/deploy"
   },
   "dependencies": {

@@ -15,6 +15,7 @@ import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
 
 import KeyService from "../infrastructure/keys";
+import { sleep } from "./utils";
 
 //const keyService = Container.get(KeyService);
 
@@ -111,6 +112,8 @@ async function connectToAlligator(THIS_INSTANCE_ADDRESS: string): Promise<void> 
 
     const keyService = Container.get<KeyService>("keyservice");
 
+    await keyService.waitForReady();
+    
     const agent = new https.Agent({
         rejectUnauthorized: process.env.NODE_ENV?.toLowerCase?.() !== "development"
     });

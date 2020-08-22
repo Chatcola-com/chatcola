@@ -15,6 +15,8 @@ import { AppError } from "../../infrastructure/utils";
 import { IKeyService } from "../../types/infrastructure";
 import { ZodError } from "zod";
 
+import licenses from "../../third-party-licenses.json";
+
 const keyService = Container.get<IKeyService>("keyservice");
 const authService = Container.get(AuthService);
 
@@ -181,6 +183,15 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
                 }
             }
         }
+        case "/api/licenses": {
+
+            return {
+                success: true,
+                data: {
+                    licenses
+                }
+            }
+        };
         default: {
             return {
                 success: false,

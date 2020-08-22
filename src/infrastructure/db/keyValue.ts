@@ -5,6 +5,7 @@
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
+import MemorySync from "lowdb/adapters/Memory";
 
 import path from 'path';
 
@@ -12,9 +13,14 @@ import { TKeyValueStore } from "../../types/infrastructure";
 
 import config from "../config";
 
+let adapter: typeof MemorySync | typeof FileSync;
 
-const adapter = new FileSync( path.resolve( config.assetsPath, "chatcola.json" ) );
-const db = low(adapter)
+if(config.inMemoryDatabase)
+    adapter = new MemorySync("chatcola")
+else 
+    adapter = new FileSync( path.resolve( config.assetsPath, "chatcola.json" ) );
+
+const db = low(adapter);
 
 db.defaults({}).write();
 
