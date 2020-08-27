@@ -48,7 +48,7 @@ export default {
       process.env.SHOULD_REPORT_ERRORS !== "false"  
     ),
 
-    delegator_url: getDelegatorUrl(),
+    alligator_url: getAlligatorUrl(),
 
     logs: {
         level: "debug",
@@ -74,7 +74,7 @@ function getPrefferedDatabaseType(): "nedb" | "mongo" {
   return "nedb";
 }
 
-function getDelegatorUrl() {
+function getAlligatorUrl() {
   switch(process.env.NODE_ENV) {
     case "production": return "alligator.chatcola.com";
     case "staging": return "alligator.chatcola.art-c.tech";

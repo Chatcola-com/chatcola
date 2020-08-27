@@ -18,14 +18,15 @@ import bootstrapChatroomSocketDataChannel from "./socket";
 
 import AuthService from "../../application/auth.service";
 
-const alligatorWsConnector = Container.get<TAlligatorWsConnector>("alligatorWsConnector");
-const authService = Container.get(AuthService);
 
 const peerConnections: {
     [topicId: string]: RTCPeerConnection
 } = {};
 
 export default async function bootstrapP2PServer() {
+
+    const alligatorWsConnector = Container.get<TAlligatorWsConnector>("alligatorWsConnector");
+    const authService = Container.get(AuthService);
 
     alligatorWsConnector.subscribe("webrtcoffer", async (message, send) => {
         if(message.type !== "webrtcoffer")
@@ -46,14 +47,16 @@ export default async function bootstrapP2PServer() {
                 channel.locals = {
                     name: claims.name,
                     slug: claims.slug
-                };
+                };  
 
-                channel.send(JSON.stringify({ kind: "ACK" }));
+                await awaitForChannelOpen(channel);
 
                 bootstrapChatroomSocketDataChannel(channel);
             }
             else if(channel.label === "requestResponse") {
                 bootstrapRequestResponseDataChannel(channel);
+                
+                await awaitForChannelOpen(channel);
                 channel.send(JSON.stringify({ kind: "ACK" }));
             }
         }
@@ -119,5 +122,14 @@ async function awaitForPeerconnection(topicId: string) {
                 timesFired++;
 
         }, 500);
+    })
+}
+
+async function awaitForChannelOpen(channel: RTCDataChannel) {
+    return new Promise( r => {
+        const interval = setInterval(() => {
+            if(channel.readyState === "open")
+                r(clearInterval(interval));
+        }, 50);
     })
 }

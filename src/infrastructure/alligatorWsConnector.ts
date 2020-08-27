@@ -43,6 +43,13 @@ function makeSendToAlligator(topicId: string) {
 }
 
 function bootstrapAlligatorWsConnection() {
+
+    setInterval(() => {
+        try {
+            alligatorConection?.ping("{}", undefined, () => {});
+        } catch {}
+    }, 5000);
+
     alligatorConection?.on("message", function(data) {
 
         try {
@@ -121,7 +128,7 @@ async function connectToAlligator(THIS_INSTANCE_ADDRESS: string): Promise<void> 
         const signedTimestamp = Date.now().toString()
         const timestampSignature = keyService.getMessageSignature(`${THIS_INSTANCE_ADDRESS}-${signedTimestamp}`)
 
-        const ws = new WebSocket(`wss://${infraConfig.delegator_url}/s/chatcolaInstance`, {
+        const ws = new WebSocket(`wss://${infraConfig.alligator_url}/s/chatcolaInstance`, {
             agent,
             headers: {
                 "x-timestamp-signature": `${THIS_INSTANCE_ADDRESS} ${signedTimestamp} ${timestampSignature}`,

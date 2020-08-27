@@ -26,7 +26,7 @@ export function alligatorFetcher(THIS_INSTANCE_ADDRESS: string): TFetcher {
         if(options?.body && (typeof options?.body) === "string") 
             signature = keyService.getMessageSignature(String(options.body));
     
-        return fetch(`https://${config.delegator_url}${path}`, {
+        return fetch(`https://${config.alligator_url}${path}`, {
             headers: {
                 'Content-Type': 'application/json',
                 "Authorization": `Signature ${THIS_INSTANCE_ADDRESS} ${signature}`,
