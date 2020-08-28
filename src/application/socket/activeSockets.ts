@@ -5,6 +5,7 @@ export type TChatroomSocket = {
     }
     send: (message: string) => any;
     close: () => any;   
+    isOpen: () => boolean;
 }
 
 export const activeSockets: {
@@ -13,6 +14,7 @@ export const activeSockets: {
 
 export function publishToChatroom(slug: string, message: string) {
     activeSockets[slug]?.forEach( socket => {
-        socket.send(message);
+        if(socket.isOpen())
+            socket.send(message);
     })
 }

@@ -1,11 +1,11 @@
 import * as zod from "zod";
 
 import Container from "typedi";
-import { TLogger } from "../../../types/infrastructure";
+import { TLogger } from "../../types/infrastructure";
 
-import * as resourcesSchema from "../../../application/resources/schema";
+import * as resourcesSchema from "../../application/resources/schema";
 
-import router from "../../../application/resources/router";
+import router from "../../application/resources/router";
 
 const actualStringSchema = zod.string().nonempty();
 

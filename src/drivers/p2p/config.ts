@@ -1,14 +1,13 @@
 export default {
     iceServers: [
         {
-            urls: "stun:coturn.chatcola.art-c.tech:5349",
-            username: "staging",
+            urls: "stun:turn.chatcola.art-c.tech:5350",
             credential: "staging"
         },
         {
-            urls: "turn:coturn.chatcola.art-c.tech:5349",
+            urls: "turn:turn.chatcola.art-c.tech:5350",
             username: "staging",
-            credential: "staging"
+            credential: "staging",
         },
     ]
 }

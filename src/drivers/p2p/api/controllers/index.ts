@@ -1,1 +1,0 @@
-export type TWebrtcController = (rawBody: any, context: any, reply: (replyBody: {[key: string]: any}) => any) => any;

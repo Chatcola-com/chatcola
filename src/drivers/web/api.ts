@@ -10,9 +10,7 @@ import morgan from "morgan";
 
 import { IncomingMessage, ServerResponse } from "http";
 
-import router from "../../../application/resources/router";
-import { AppError } from "../../../infrastructure/utils";
-
+import router from "../../application/resources/router";
 
 export default function bootstrapWebserver() {
 

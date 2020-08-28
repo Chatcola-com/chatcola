@@ -28,8 +28,8 @@ export default async function bootstrapP2PServer() {
     const alligatorWsConnector = Container.get<TAlligatorWsConnector>("alligatorWsConnector");
     const authService = Container.get(AuthService);
 
-    alligatorWsConnector.subscribe("webrtcoffer", async (message, send) => {
-        if(message.type !== "webrtcoffer")
+    alligatorWsConnector.subscribe("webrtcoffer", async (messageFromPeer, sendToPeer) => {
+        if(messageFromPeer.type !== "webrtcoffer")
             return;
 
         const pc: RTCPeerConnection = new _RTCPeerConnection({ iceServers: config.iceServers });
@@ -38,7 +38,8 @@ export default async function bootstrapP2PServer() {
 
             if(channel.label === "dummy")
                 return;
-            else if(channel.label.split("-")[0] === "chatroomSocket") {
+
+            if(channel.label.split("-")[0] === "chatroomSocket") {
                 const chatroomToken = channel.label.substring(15)
 
                 const claims = await authService.validateChatUserToken(chatroomToken!);
@@ -61,10 +62,10 @@ export default async function bootstrapP2PServer() {
             }
         }
 
-        peerConnections[message.topicId] = pc;
+        peerConnections[messageFromPeer.topicId] = pc;
 
         await pc.setRemoteDescription(new _RTCSessionDescription(
-            JSON.parse(message.data.webrtcoffer)
+            JSON.parse(messageFromPeer.data.webrtcoffer)
         ));
 
         const answer = await pc.createAnswer();
@@ -73,7 +74,7 @@ export default async function bootstrapP2PServer() {
             if(!event.candidate)
                 return;
             
-            send({
+            sendToPeer({
                 type: "icecandidate",
                 data: {
                     icecandidate: JSON.stringify(event.candidate)
@@ -83,7 +84,7 @@ export default async function bootstrapP2PServer() {
 
         await pc.setLocalDescription(answer);
 
-        send({
+        sendToPeer({
             type: "webrtcanswer",
             data: {
                 webrtcanswer: JSON.stringify(answer)

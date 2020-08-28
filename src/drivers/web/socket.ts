@@ -8,13 +8,13 @@ import { Server } from "http";
 import url from "url";
 
 import Ws from "ws";
-import AuthService from "../../../application/auth.service";
-import { AppError } from "../../../infrastructure/utils";
-import socketRouter from "../../../application/socket/router";
+import AuthService from "../../application/auth.service";
+import { AppError } from "../../infrastructure/utils";
+import socketRouter from "../../application/socket/router";
 import { EventEmitter } from "events";
 
-import events from "../../../application/events/events";
-import { publishToChatroom } from "../../../application/socket/activeSockets";
+import events from "../../application/events/events";
+import { publishToChatroom } from "../../application/socket/activeSockets";
 
 const authService = Container.get(AuthService);
 const eventEmitter = Container.get<EventEmitter>("eventEmitter");
@@ -31,6 +31,8 @@ export default function websocketLoader(server: Server) {
 
         //@ts-ignore
         ws.locals = req.locals;
+        //@ts-ignore
+        ws.isOpen = () => ws.readyState === WebSocket.OPEN
 
         eventEmitter.emit(events.NEW_CLIENT_CONNECTED, ws);
 
@@ -42,6 +44,7 @@ export default function websocketLoader(server: Server) {
 
              //@ts-ignore
             const context = ws.locals;
+    
 
             try {
                 const message = JSON.parse(data.toString());
