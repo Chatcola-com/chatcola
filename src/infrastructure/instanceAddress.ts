@@ -12,22 +12,18 @@ export default function resolveInstanceAddress(keyValueStore: TKeyValueStore): s
 
     const persistedInstanceAddress = getPersistedInstanceAddress(keyValueStore);
 
-    if(persistedInstanceAddress) {
-        return persistedInstanceAddress;
-    }
-    else if(process.env.THIS_INSTANCE_ADDRESS) {
-        persistInstanceAddress(keyValueStore, process.env.THIS_INSTANCE_ADDRESS);
+    const wantsToReset = process.argv.includes("--resetAddress");
 
-        return process.env.THIS_INSTANCE_ADDRESS;
-    }
-    else {
-    
+    if(wantsToReset || !persistedInstanceAddress) {
         const instanceAddress = askForInstanceAddress();
 
         persistInstanceAddress(keyValueStore, instanceAddress);
 
         return instanceAddress;
-    } 
+    }
+    else {
+        return persistedInstanceAddress;
+    }
 }
 
 function askForInstanceAddress(): string {

@@ -39,7 +39,11 @@ This repository hosts the chatcola server needed to self-host reliance and stora
 
 you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar")
 
-If the server 
+If you want to change the address later run the server with the `--resetAddress` flag:
+```bash
+chatcola-server --resetAddress
+```
+you will be then guided through the process of assigning address again. Note that all chatrooms created beforehand will be left fatherless and impossible to use again.
 
 # Hosting a http instance
 
