@@ -16,6 +16,7 @@ const agent = new https.Agent({
     rejectUnauthorized: process.env.NODE_ENV?.toLowerCase?.() !== "development"
 });
 
+
 export function alligatorFetcher(THIS_INSTANCE_ADDRESS: string): TFetcher {
     return async (path: string, options: RequestInit = {}) => {
 
@@ -28,14 +29,13 @@ export function alligatorFetcher(THIS_INSTANCE_ADDRESS: string): TFetcher {
     
         return fetch(`https://${config.alligator_url}${path}`, {
             headers: {
-                'Content-Type': 'application/json',
+                "Content-type": "application/json",
                 "Authorization": `Signature ${THIS_INSTANCE_ADDRESS} ${signature}`,
                 ...options?.headers
             },  
             agent,
             ...options
-        })
-        .then(res => res.json())
+        }).then(res => res.json())
         .catch(err => ({ success: false, error: err }));
     }
 }

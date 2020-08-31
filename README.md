@@ -15,9 +15,39 @@ This repository hosts the chatcola server needed to self-host reliance and stora
 
 # Getting started
 
-## What you'll need
+* Install node.js 14: 
+  
+  Linux / MacOS:
+  
+  ```bash
+  curl -s https://install-node.now.sh | bash -s --
+  ```
 
-* ### a linux computer (probably a VPS) with a public IP and shell access. (`sudo` is not required, but simplifies things masivelly as shown below)
+    Windows:     [download installer from here](https://nodejs.org/dist/v12.18.3/node-v12.18.3-x86.msi)
+
+* Install chatcola p2p server:
+  
+  ```bash
+  npm install -g chatcola-server
+  ```
+
+* Run the server
+  
+  ```bash
+  chatcola-server
+  ```
+
+you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar")
+
+If the server 
+
+# Hosting a http instance
+
+This comes a bit harder than hosting a webrtc instance, but provides a more performant and probably more stable experience.
+
+##### What you'll need
+
+* ###### a linux computer (probably a VPS) with a public IP and shell access. (`sudo` is not required, but simplifies things masivelly as shown below)
 
 # Installing chatcola
 

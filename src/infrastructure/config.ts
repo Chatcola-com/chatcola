@@ -31,6 +31,9 @@ if(process.env.DATABASE === "mongo" && !process.env.MONGO_URI) {
 
 
 export default {
+
+    isProd,
+
     database: getPrefferedDatabaseType(),
 
     assetsPath,

@@ -27,8 +27,8 @@ const alligatorService = Container.get(AlligatorService);
   await bootstrapWebserver(config.port);
 
   await alligatorService.sayHello()
-    .then(() => Logger.info(`Successfuly connected to Alligator`))
-    .catch((error: any) => Logger.error(error, `Failed connect to Alligator`))
+    .then(() => Logger.info(`Successfuly sent keys to Alligator`))
+    .catch((error: any) => Logger.error(error, `Failed to send keys to Alligator`))
 
   Logger.info(`Started webserver on localhost:${config.port}`)
 

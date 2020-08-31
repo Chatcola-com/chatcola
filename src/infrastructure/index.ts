@@ -19,41 +19,22 @@ import keyValueStore from "./db/keyValue";
 
 import resolveDatabase from "./db";
 import KeyService from "./keys";
-import { initJwtSecret, getPersistedInstanceAddress, persistInstanceAddress } from "./persistentConfig";
+import { initJwtSecret } from "./persistentConfig";
 import { IKeyService } from "../types/infrastructure";
 
 import getAlligatorWsConnector from "./alligatorWsConnector";
 
-import readline from "readline-sync";
+import resolveInstanceAddress from "./instanceAddress";
 
 const jwtSecret = initJwtSecret(keyValueStore);
 Container.set("jwtSecret", jwtSecret);
 
-const persistedInstanceAddress = getPersistedInstanceAddress(keyValueStore);
+const THIS_INSTANCE_ADDRESS = resolveInstanceAddress(keyValueStore);
 
-if(!persistedInstanceAddress && !process.env.THIS_INSTANCE_ADDRESS) {
-   
-    const instanceAddress = readline.question("Please input instance address...\n--> ")
-    const instanceAddressRepeat = readline.question("Please repeat the instance address...\n--> ");
 
-    if(!instanceAddress || (instanceAddress !== instanceAddressRepeat))
-        process.exit(1);
+Logger.info(`Using instanceAddress ${THIS_INSTANCE_ADDRESS}`)
 
-    persistInstanceAddress(keyValueStore, instanceAddress);
-    Container.set("THIS_INSTANCE_ADDRESS", instanceAddress);
-} 
-else if(process.env.THIS_INSTANCE_ADDRESS) {
-    persistInstanceAddress(keyValueStore, process.env.THIS_INSTANCE_ADDRESS);
-
-    Logger.info(`Updating THIS_INSTANCE_ADDRESS to "${process.env.THIS_INSTANCE_ADDRESS}"`);
-    Container.set("THIS_INSTANCE_ADDRESS", process.env.THIS_INSTANCE_ADDRESS);
-}
-else {
-    Logger.info(`Using previous THIS_INSTANCE_ADDRESS "${persistedInstanceAddress}"`)
-    Container.set("THIS_INSTANCE_ADDRESS", persistedInstanceAddress);
-}
-
-const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
+Container.set("THIS_INSTANCE_ADDRESS", THIS_INSTANCE_ADDRESS);
 
 Container.set("logger", Logger);
 Container.set("eventEmitter", eventEmitter);

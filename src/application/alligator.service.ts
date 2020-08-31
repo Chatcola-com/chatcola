@@ -4,7 +4,7 @@
 /*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
 /*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
 import { Service, Inject, Container } from "typedi";
-import { TFetcher, TAlligatorWsConnector } from "../types/infrastructure";
+import { TFetcher } from "../types/infrastructure";
 
 import { TPushMessage } from "types/push";
 
@@ -12,8 +12,6 @@ import { TPushMessage } from "types/push";
 
 import infraConfig from "../infrastructure/config";
 import KeyService from "../infrastructure/keys";
-const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
-
 
 @Service()
 export default class AlligatorService {
@@ -24,6 +22,9 @@ export default class AlligatorService {
     ) {}
 
     async sayHello() {
+    
+        const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
+    
         const result = await this.fetcher(`/api/chatcolaInstance/hello`, {
             method: "POST",
             body: JSON.stringify({
@@ -36,6 +37,9 @@ export default class AlligatorService {
     }
 
     async sayHelloP2p() {
+        
+        const THIS_INSTANCE_ADDRESS = Container.get<string>("THIS_INSTANCE_ADDRESS");
+
         const result = await this.fetcher(`/api/chatcolaInstance/hello`, {
             method: "POST",
             body: JSON.stringify({

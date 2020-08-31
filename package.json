@@ -72,6 +72,7 @@
     "node-fetch": "^2.6.0",
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
+    "sync-fetch": "^0.2.0",
     "typedi": "^0.8.0",
     "uuid": "^8.1.0",
     "web-push": "^3.4.4",
