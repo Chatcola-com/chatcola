@@ -15,9 +15,6 @@ import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
 
 import KeyService from "../infrastructure/keys";
-import { sleep } from "./utils";
-
-//const keyService = Container.get(KeyService);
 
 let alligatorConection: null | WebSocket;
 

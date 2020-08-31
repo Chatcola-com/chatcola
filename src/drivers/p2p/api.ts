@@ -22,13 +22,15 @@ export default function bootstrapRequestResponseDataChannel(channel: RTCDataChan
             const resourcePath = actualStringSchema.parse(message.resourcePath);
             const context = resourcesSchema.requestContext.parse(message.context);
 
-            Logger.info(`Webrtc request ${resourcePath}`)
-
             const result = await router(
                 resourcePath,
                 message.body,
                 context
             );
+
+            Logger.info(`Webrtc request ${resourcePath} -> ${
+                result.success ? `success` : `failed: ${result.error}`
+            }`)
 
             channel.send(JSON.stringify({
                 requestId,

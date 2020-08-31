@@ -48,6 +48,7 @@
     "dev:p2p": "NODE_ENV=development nodemon src/drivers/p2p",
     "build": "./scripts/build",
     "memory": "NODE_ENV=development MEMORY=true THIS_INSTANCE_ADDRESS=localhost:7777 nodemon src/drivers/web",
+    "memory:p2p": "NODE_ENV=development MEMORY=true THIS_INSTANCE_ADDRESS=test nodemon src/drivers/p2p",
     "deploy": "./scripts/deploy",
     "package": "pkg ./build/p2p/index.js --out-path build/exe/p2p"
   },

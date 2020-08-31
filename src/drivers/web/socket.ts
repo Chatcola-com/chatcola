@@ -32,7 +32,7 @@ export default function websocketLoader(server: Server) {
         //@ts-ignore
         ws.locals = req.locals;
         //@ts-ignore
-        ws.isOpen = () => ws.readyState === WebSocket.OPEN
+        ws.isOpen = () => ws.readyState === Ws.OPEN
 
         eventEmitter.emit(events.NEW_CLIENT_CONNECTED, ws);
 
@@ -45,7 +45,6 @@ export default function websocketLoader(server: Server) {
              //@ts-ignore
             const context = ws.locals;
     
-
             try {
                 const message = JSON.parse(data.toString());
                 
