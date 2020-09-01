@@ -1,4 +1,4 @@
-# Chatcola server
+<h1 align="center">>Chatcola server</h1>
 
 <p align="center">
     <a href="https://hub.docker.com/repository/docker/chatcola/chatcola" alt="Docker image">
