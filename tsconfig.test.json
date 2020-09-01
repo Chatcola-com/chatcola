@@ -1,22 +1,7 @@
 {
-    "compilerOptions": {
-      "target": "es2018",
-      "rootDir": "src",
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "declaration": true,
-      "inlineSourceMap": true,
-      "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
-
-      "experimentalDecorators": true /* Enables experimental support for ES7 decorators. */,
-      "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
-  
-      "lib": [ "es2017", "dom" ],
-      "types": [ "node", "jest" ],
-      "typeRoots": [ "./node_modules/@types/", "src/types/**.ts" ],
-      "baseUrl": "./__tests__",
-    },
-    "include": [ "src/**/*.ts", "__tests__/**/*.ts"],
-    "exclude": [ "./node_modules/**/*", "./node_modules/**/*" ],
-    "compileOnSave": false
-  }
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest"],
+  },
+  "include": ["__tests__/**/*.ts"]
+}
