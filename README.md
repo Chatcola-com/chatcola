@@ -10,6 +10,9 @@
     <a href="https://codeclimate.com/github/Chatcola-com/chatcola/test_coverage">
         <img src="https://api.codeclimate.com/v1/badges/15ccec53546e121c1eff/test_coverage" />
     </a>
+    <a href="https://codeclimate.com/github/Chatcola-com/chatcola/maintainability">
+        <img src="https://api.codeclimate.com/v1/badges/15ccec53546e121c1eff/maintainability" />
+    </a>
 </p>
 
 ---
