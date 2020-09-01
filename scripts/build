@@ -1,0 +1,22 @@
+#! /bin/bash
+
+set -e
+
+if [ "${1}" == "http" ]; then
+    ENTRY_POINT=./src/drivers/web/index.ts 
+    OUTPUT_DIR=./build/http
+else 
+    ENTRY_POINT=./src/drivers/p2p/index.ts 
+    OUTPUT_DIR=./build/p2p 
+fi
+
+echo "building ${ENTRY_POINT} with env: ${NODE_ENV}"
+
+mkdir -p $OUTPUT_DIR
+
+./node_modules/.bin/ncc build -s $ENTRY_POINT -o $OUTPUT_DIR
+
+cp LICENSE.md src/third-party-licenses.json ecosystem.config.js $OUTPUT_DIR
+
+sed -i "1 i #!/usr/bin/env node \n\n process.env.NODE_ENV=\"${NODE_ENV}\"" "${OUTPUT_DIR}/index.js"
+cp $(find node_modules -name "*.node") $OUTPUT_DIR

@@ -2,11 +2,13 @@ node_modules
 
 yarn-error.log
 
+assets-*
+
 chatcola.nedb-*
 
 *.env
 *.pem
 
-build
+build/
 
 chatcola.json
