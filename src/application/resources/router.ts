@@ -211,6 +211,15 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
                 }
             }
         };
+        case "/api/source": {
+
+            return {
+                success: true,
+                data: {
+                    codeRepository: "https://github.com/chatcola-com/chatcola",
+                }
+            }
+        };
         default: {
             return {
                 success: false,

@@ -1,14 +1,17 @@
 {
   "name": "chatcola-server",
-  "version": "2.0.10",
+  "version": "3.0.0",
   "main": "build/p2p/index.js",
   "bin": {
     "chatcola-server-http": "./build/http/index.js",
     "chatcola-server": "./build/p2p/index.js"
   },
-  "author": "@anteeek <antekpapiewski@gmail.com>",
+  "author": {
+    "name": "Antoni Papiewski",
+    "email": "antekpapiewski <at> gmail.com"
+  },  
   "private": false,
-  "license": "BSL-1.1 (/LICENSE.MD)",
+  "license": "AGPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.10.3",
@@ -29,14 +32,11 @@
     "@types/node-fetch": "^2.5.7",
     "@types/readline-sync": "^1.4.3",
     "@types/uuid": "^8.0.0",
-    "@types/web-push": "^3.3.0",
     "@types/ws": "^7.2.6",
     "babel-jest": "^26.1.0",
-    "cross-env": "^7.0.2",
     "jest": "^26.0.1",
     "ncc": "^0.3.6",
     "nodemon": "^2.0.4",
-    "pkg": "^4.4.9",
     "prettier": "^2.0.5",
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
@@ -49,8 +49,7 @@
     "build": "./scripts/build",
     "memory": "NODE_ENV=development MEMORY=true THIS_INSTANCE_ADDRESS=localhost:7777 nodemon src/drivers/web",
     "memory:p2p": "NODE_ENV=development MEMORY=true THIS_INSTANCE_ADDRESS=test nodemon src/drivers/p2p",
-    "deploy": "./scripts/deploy",
-    "package": "pkg ./build/p2p/index.js --out-path build/exe/p2p"
+    "deploy": "./scripts/deploy"
   },
   "dependencies": {
     "@sentry/integrations": "^5.15.5",
@@ -75,13 +74,9 @@
     "sync-fetch": "^0.2.0",
     "typedi": "^0.8.0",
     "uuid": "^8.1.0",
-    "web-push": "^3.4.4",
     "winston": "^3.2.1",
     "wrtc": "^0.4.6",
     "ws": "^7.3.1",
     "zod": "^1.10.1"
-  },
-  "pkg": {
-    "assets": "src/**/*.json"
   }
 }
