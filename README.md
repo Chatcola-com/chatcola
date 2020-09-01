@@ -183,4 +183,4 @@ This program is free software. For alternate licensing arrangements contact us a
   title=""
   alt="AGPL-3.0" 
   align="center"
->
+/>
