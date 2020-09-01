@@ -43,7 +43,7 @@
     "typescript": "^3.9.6"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "dev": "NODE_ENV=development nodemon src/drivers/web",
     "dev:p2p": "NODE_ENV=development nodemon src/drivers/p2p",
     "build": "./scripts/build",
