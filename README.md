@@ -1,3 +1,9 @@
+<p align="center">
+  <img 
+    src="https://chatcola.com/images/logo.png"
+  />
+</p>
+
 <h1 align="center">Chatcola server</h1>
 
 <p align="center">
@@ -178,9 +184,4 @@ That's it. You might want to go a little bit further and use something like [pm2
 
 This program is free software. For alternate licensing arrangements contact us at freedom@chatcola.com
 
-<img 
-  src="https://www.gnu.org/graphics/agplv3-with-text-162x68.png" 
-  title=""
-  alt="AGPL-3.0" 
-  align="center"
-/>
+<img src="https://www.gnu.org/graphics/agplv3-with-text-162x68.png" title="" alt="AGPL-3.0" data-align="center">
