@@ -4,8 +4,11 @@
     <a href="https://hub.docker.com/repository/docker/chatcola/chatcola" alt="Docker image">
         <img src="https://img.shields.io/docker/automated/chatcola/chatcola" />
     </a>
-    <a href="https://hub.docker.com/repository/docker/chatcola/chatcola" alt="Docker image">
-        <img src="https://img.shields.io/docker/cloud/build/chatcola/chatcola" />
+    <a title="Latest push build on default branch: passed" name="status-images" class="pointer open-popup">
+        <img src="https://travis-ci.com/Chatcola-com/chatcola.svg?branch=master&amp;status=passed" alt="build:passed">
+    </a>
+    <a href="https://codeclimate.com/github/Chatcola-com/chatcola/test_coverage">
+        <img src="https://api.codeclimate.com/v1/badges/15ccec53546e121c1eff/test_coverage" />
     </a>
 </p>
 
