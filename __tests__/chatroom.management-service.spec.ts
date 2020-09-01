@@ -1,8 +1,22 @@
-/*_________________________________________________________________________________________________________________
-/*|-----------------------------Copyright © Antoni Papiewski and Milan Kazarka 2020-----------------------------/*/
-/*|----------Distribution of this software is only permitted in accordance with the BSL © 1.1 license----------/*/
-/*|---included in the LICENSE.md file, in the software's github.com repository and on chatcola.com website.---/*/
-/*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯/*/
+/*
+|    For alternative licensing arrangements contact us at freedom@chatcola.com
+|--------------------------------------------------------------------------------  
+|    This file is part of chatcola.com server
+|    Copyright (C) 2020 Antoni Papiewski & Milan Kazarka
+|
+|    This program is free software: you can redistribute it and/or modify
+|    it under the terms of the GNU Affero General Public License as published by
+|    the Free Software Foundation, either version 3 of the License, or
+|    (at your option) any later version.
+|
+|    This program is distributed in the hope that it will be useful,
+|    but WITHOUT ANY WARRANTY; without even the implied warranty of
+|    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|    GNU Affero General Public License for more details.
+|
+|    You should have received a copy of the GNU Affero General Public License
+|    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 import { Container } from "typedi";
 
 import ChatroomService from "../src/application/chatroom.service";
@@ -37,7 +51,7 @@ describe("Chatroom management service", () => {
         const chatroom = await chatroomService.getDetailed(slug);
         
         expect(
-            chatroom.access_tokens.findIndex( ({ token }) => token === revokedToken )
+            chatroom?.access_tokens.findIndex( ({ token }) => token === revokedToken )
         ).not.toBeGreaterThan(-1)
     });
 
@@ -58,11 +72,11 @@ describe("Chatroom management service", () => {
         const chatroomAfter = await chatroomService.getDetailed(slug);
 
         expect(
-            chatroomAfter.users.length
+            chatroomAfter?.users.length
         ).toEqual(1);
 
         expect(
-            chatroomAfter.users[0].name
+            chatroomAfter?.users[0].name
         ).toEqual("@"+not_kicked_user_name);
     });
     
@@ -95,7 +109,7 @@ describe("Chatroom management service", () => {
         const chatroomAfter = await chatroomService.getDetailed(slug);
 
         expect(
-            chatroomAfter.access_tokens.length
+            chatroomAfter?.access_tokens.length
         ).toEqual( initialAmount + addedAmount );
     });
 
@@ -115,13 +129,13 @@ describe("Chatroom management service", () => {
         const chatroomAfter = await chatroomService.getDetailed(slug);
 
         expect(
-            chatroomAfter.access_tokens.length
+            chatroomAfter?.access_tokens.length
         ).toEqual(
             initialAmount - 1
         );
 
         expect(
-            chatroomAfter.access_tokens.findIndex( t => t.token === targetToken )
+            chatroomAfter?.access_tokens.findIndex( t => t.token === targetToken )
         ).toBeLessThan(
             0
         )
