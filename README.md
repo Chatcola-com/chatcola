@@ -5,7 +5,7 @@
         <img src="https://img.shields.io/docker/automated/chatcola/chatcola" />
     </a>
     <a title="Latest push build on default branch: passed" name="status-images" class="pointer open-popup">
-        <img src="https://travis-ci.com/Chatcola-com/chatcola.svg?branch=master&amp;status=passed" alt="build:passed">
+        <img src="https://travis-ci.com/Chatcola-com/chatcola.svg?branch=master&status=passed" alt="build:passed">
     </a>
     <a href="https://codeclimate.com/github/Chatcola-com/chatcola/test_coverage">
         <img src="https://api.codeclimate.com/v1/badges/15ccec53546e121c1eff/test_coverage" />
@@ -46,9 +46,11 @@ This repository hosts the chatcola server needed to self-host reliance and stora
 you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar")
 
 If you want to change the address later run the server with the `--resetAddress` flag:
+
 ```bash
 chatcola-server --resetAddress
 ```
+
 you will be then guided through the process of assigning address again. Note that all chatrooms created beforehand will be left fatherless and impossible to use again.
 
 # Hosting a http instance
@@ -169,3 +171,11 @@ forever start "THIS_INSTANCE_ADDRESS=<your-domain>:7777 chatcola-server"
 ```
 
 That's it. You might want to go a little bit further and use something like [pm2](https://npmjs.com/package/pm2) which also provides a nice way of plugging in your processes to `systemd`.
+
+
+
+# License
+
+This program is free software. For alternate licensing arrangements contact us at freedom@chatcola.com
+
+<img src="https://www.gnu.org/graphics/agplv3-with-text-162x68.png" title="" alt="AGPL-3.0" data-align="center">
