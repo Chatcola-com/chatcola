@@ -56,9 +56,8 @@ export default {
 
     mongoURL: process.env.MONGO_URI,
 
-    //A few files will be resolved from NEDB path - chatcola.nedb-chatrooms and chatcola.nedb-messages. 
-    //It's rather a filename template, not a directory.
-    nedbPath: path.resolve(assetsPath, "chatcola.nedb"),
+    nedbPathChatrooms: path.resolve(assetsPath, "chatcola-chatrooms.nedb"),
+    nedbPathMessages: path.resolve(assetsPath, "chatcola-messages.nedb"),    
     
     should_report_errors: Boolean(
       isProd && 

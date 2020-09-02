@@ -10,6 +10,8 @@ else
     OUTPUT_DIR=./build/p2p 
 fi
 
+NODE_ENV="${NODE_ENV:-production}"
+
 echo "building ${ENTRY_POINT} with env: ${NODE_ENV}"
 
 mkdir -p $OUTPUT_DIR
@@ -18,5 +20,6 @@ mkdir -p $OUTPUT_DIR
 
 cp LICENSE.md src/third-party-licenses.json ecosystem.config.js $OUTPUT_DIR
 
+cp -u node_modules/sync-fetch/{shared.js,worker.js} $OUTPUT_DIR
+
 sed -i "1 i #!/usr/bin/env node \n\n process.env.NODE_ENV=\"${NODE_ENV}\"" "${OUTPUT_DIR}/index.js"
-cp $(find node_modules -name "*.node") $OUTPUT_DIR

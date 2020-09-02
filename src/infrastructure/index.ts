@@ -39,6 +39,7 @@ import { IKeyService } from "../types/infrastructure";
 import getAlligatorWsConnector from "./alligatorWsConnector";
 
 import resolveInstanceAddress from "./instanceAddress";
+import runMigrations from "./migrations";
 
 const jwtSecret = initJwtSecret(keyValueStore);
 Container.set("jwtSecret", jwtSecret);
@@ -64,7 +65,8 @@ Container.set("alligatorFetcher", alligatorFetcher(THIS_INSTANCE_ADDRESS));
 const { 
     chatroomRepository,
     messageRepository,
-    initDatabase
+    initDatabase,
+    createBackup
 } = resolveDatabase(config.database);
 
 Container.set("chatroomRepository", chatroomRepository);
@@ -73,8 +75,10 @@ Container.set("messageRepository", messageRepository);
 Logger.info(`Successfuly initialized dependencies`);
 
 export default async function loadInfrastructure() {
-    
-    const keyService = Container.get<IKeyService>("keyservice")
+
+    runMigrations(createBackup);
+
+    const keyService = Container.get<IKeyService>("keyservice");
 
     await keyService.init();
     Logger.info(`Successfuly initialized keys!`);
@@ -82,5 +86,5 @@ export default async function loadInfrastructure() {
     Container.set("alligatorWsConnector", getAlligatorWsConnector(THIS_INSTANCE_ADDRESS))
 
     await initDatabase();
-    Logger.info(`Successfuly connected to the database!`)
+    Logger.info(`Successfuly connected to the database!`);
 }

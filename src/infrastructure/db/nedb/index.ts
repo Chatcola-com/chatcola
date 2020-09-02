@@ -21,6 +21,12 @@ import NedbRepositoryFactory from "./repository-factory";
 import Chatroom from "../../../application/entities/chatroom";
 import Message from "../../../application/entities/message";
 import { TChatroomRepository, TMessageRepository } from "../../../types/infrastructure";
+
+import fs from "fs";
+
+
+import config from "../../config";
+
 export { default as NedbRepositoryFactory } from "./repository-factory";
 
 import {
@@ -33,7 +39,26 @@ export default async function initNedb() {
         ChatroomModel.model.load(),
         MessageModel.model.load()
     ])
-}   
+}
+
+export async function createBackup(backupName: string) {
+
+    const {
+        messageBackupCollectionName,
+        chatroomBackupCollectionName
+    } = getBackupCollectionNames(backupName);
+
+    fs.copyFileSync(config.nedbPathChatrooms, chatroomBackupCollectionName);
+    fs.copyFileSync(config.nedbPathMessages, messageBackupCollectionName);
+}
+
+function getBackupCollectionNames(backupName: string) {
+
+    return {
+        messageBackupCollectionName: config.nedbPathMessages+"-backup-"+backupName,
+        chatroomBackupCollectionName: config.nedbPathChatrooms+"-backup-"+backupName,
+    }
+}
 
 export class ChatroomRepository 
     extends NedbRepositoryFactory<Chatroom>(

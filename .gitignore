@@ -5,6 +5,9 @@ yarn-error.log
 assets-*
 
 chatcola.nedb-*
+*.nedb
+
+coverage
 
 *.env
 *.pem

@@ -9,4 +9,6 @@ ecosystem.config.js
 
 tsconfi*.json
 
+coverage
+
 *.env
