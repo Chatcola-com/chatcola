@@ -179,6 +179,11 @@ forever start "THIS_INSTANCE_ADDRESS=<your-domain>:7777 chatcola-server"
 That's it. You might want to go a little bit further and use something like [pm2](https://npmjs.com/package/pm2) which also provides a nice way of plugging in your processes to `systemd`.
 
 
+## Building from source
+
+1. Clone the repository and run `npm install`
+2. Make the script executable - `chmod +x ./scripts/build`
+3. Either run `./scripts/build` to build for webrtc or `./scripts/build http` for http. Your build will be in `build/p2p` or `build/http`.
 
 # License
 
