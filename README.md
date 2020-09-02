@@ -91,7 +91,7 @@ To get a free domain name head over to [Freenom.com](https://www.freenom.com/en/
 
 Head over to [Certbot - Certbot Instructions](https://certbot.eff.org/instructions) To get a free certificate. Once you are done, something like this will show up:
 
-```textile
+```textfile
 - Congratulations! Your certificate and chain have been saved at:
    /etc/letsencrypt/live/<YOUR DOMAIN NAME>/fullchain.pem // <-----------
    Your key file has been saved at:
@@ -136,4 +136,6 @@ Available options are:
 
 This program is free software. For alternate licensing arrangements contact us at freedom@chatcola.com
 
-<img src="https://www.gnu.org/graphics/agplv3-with-text-162x68.png" title="" alt="AGPL-3.0" data-align="center">
+<p align="center">
+  <img src="https://www.gnu.org/graphics/agplv3-with-text-162x68.png" title="" alt="AGPL-3.0">
+</p>
