@@ -9,7 +9,7 @@
   "author": {
     "name": "Antoni Papiewski",
     "email": "antekpapiewski <at> gmail.com"
-  },  
+  },
   "private": false,
   "license": "AGPL-3.0",
   "devDependencies": {
@@ -35,7 +35,6 @@
     "@types/ws": "^7.2.6",
     "babel-jest": "^26.1.0",
     "jest": "^26.0.1",
-    "ncc": "^0.3.6",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
     "ts-jest": "^26.0.0",
