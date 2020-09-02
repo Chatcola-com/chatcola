@@ -21,8 +21,6 @@
  * /------------------------------------------
  */
 
-import WebSocket from "ws";
-
 import Chatroom from "application/entities/chatroom";
 import Message from "application/entities/message";
 
@@ -49,7 +47,11 @@ export type TJobScheduler = {
 
 export type TFetcher = (path: string, options?: any) => Promise<any>;
 
+/** / 
+ * /------------------------------------------
+ */
 
+export type TCreateBackup = (backupName: string) => any;
 
 /** / 
  * /------------------------------------------

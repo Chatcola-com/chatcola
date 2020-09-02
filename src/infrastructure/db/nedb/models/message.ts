@@ -20,6 +20,8 @@
 import Message, { TMessage } from "../../../../application/entities/message";
 import { createCollection } from "./utils";
 
+import config from "../../../config";
+
 export function serialize(message: Message): TMessage {
     return message
 }
@@ -28,4 +30,4 @@ export function deserialize(message: TMessage): Message {
     return new Message(message)
 }
 
-export const model = createCollection("messages");
+export const model = createCollection(config.nedbPathMessages);

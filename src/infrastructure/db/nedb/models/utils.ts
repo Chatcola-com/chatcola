@@ -21,10 +21,10 @@ import NeDB from "nedb-promises";
 
 import config from "../../../config";
 
-export function createCollection(name: string) {
+export function createCollection(filename: string) {
     return NeDB.create({
+        filename,
         inMemoryOnly: config.inMemoryDatabase,
-        filename: `${config.nedbPath}-${name}`,
-        //autoload: true
+        autoload: true
     })
 }

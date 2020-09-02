@@ -21,6 +21,7 @@ import { TChatroom } from "../../../../application/entities/chatroom";
 import { createCollection } from "./utils";
 import Chatroom from "../../../../application/entities/chatroom";
 
+import config from "../../../config";
 
 export function serialize(chatroom: TChatroom): TChatroom {
     return chatroom;
@@ -31,4 +32,5 @@ export function deserialize(chatroom: TChatroom): Chatroom {
     return new Chatroom(chatroom);
 }
 
-export const model = createCollection("chatrooms");
+
+export const model = createCollection(config.nedbPathChatrooms);

@@ -24,7 +24,8 @@ import initMongodb, {
 
 import initNedb, { 
     ChatroomRepository as NedbChatroomRepository,
-    MessageRepository as NedbMessageRepository
+    MessageRepository as NedbMessageRepository,
+    createBackup as nedbCreateBackup
  } from "./nedb";
 import { TChatroomRepository, TMessageRepository } from "../../types/infrastructure";
 
@@ -40,14 +41,18 @@ export default function resolveDatabase(kind: "mongo" | "nedb"): TResolvedDataba
 type TResolvedDatabase = {
     chatroomRepository: TChatroomRepository,
     messageRepository: TMessageRepository,
-    initDatabase: () => Promise<any>
+    initDatabase: () => Promise<any>,
+    createBackup: (backupName: string) => any;
 }
 
 function resolveMongo(): TResolvedDatabase {
     return {
         chatroomRepository: new MongoChatroomRepository(),
         messageRepository: new MongoMessageRepository(),
-        initDatabase: initMongodb
+        initDatabase: initMongodb,
+        createBackup() {
+            throw new Error("MONGODB BACKUPS NOT YET IMPLEMENTED");
+        }
     }
 }
 
@@ -56,6 +61,7 @@ function resolveNedb(): TResolvedDatabase {
     return {
         chatroomRepository: new NedbChatroomRepository(),
         messageRepository: new NedbMessageRepository(),
-        initDatabase: initNedb
+        initDatabase: initNedb,
+        createBackup: nedbCreateBackup
     }
 }
