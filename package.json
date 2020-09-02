@@ -1,10 +1,10 @@
 {
   "name": "chatcola-server",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "main": "build/p2p/index.js",
   "bin": {
-    "chatcola-server-http": "./build/http/index.js",
-    "chatcola-server": "./build/p2p/index.js"
+    "chatcola-server-http": "./build/drivers/web/index.js",
+    "chatcola-server": "./build/drivers/p2p/index.js"
   },
   "author": {
     "name": "Antoni Papiewski",

@@ -79,6 +79,9 @@ function isInstanceAddressAvailable(instanceAddress: string): boolean {
     
     const result = syncFetch(`https://${config.alligator_url}/api/chatcolaInstance/isInstanceAddressAvailable`, {
         method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
             instanceAddress
         })
