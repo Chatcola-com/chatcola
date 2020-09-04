@@ -1,5 +1,5 @@
 cp LICENSE.md build
 
-rsync -azP ./build/http/* $1:/opt/chatcola-server/build
+rsync -azP ./build/* $1:/opt/chatcola-server/build
 
 ssh $1 "cd /opt/chatcola-server && pm2 delete chatcola-server && pm2 start ecosystem.config.js"

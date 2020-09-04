@@ -2,24 +2,18 @@
 
 set -e
 
-if [ "${1}" == "http" ]; then
-    ENTRY_POINT=./src/drivers/web/index.ts 
-    OUTPUT_DIR=./build/http
-else 
-    ENTRY_POINT=./src/drivers/p2p/index.ts 
-    OUTPUT_DIR=./build/p2p 
-fi
-
 NODE_ENV="${NODE_ENV:-production}"
+echo "building with env: ${NODE_ENV}"
 
-echo "building ${ENTRY_POINT} with env: ${NODE_ENV}"
+OUTPUT_DIR=./build/
 
 mkdir -p $OUTPUT_DIR
 
-./node_modules/.bin/ncc build -s $ENTRY_POINT -o $OUTPUT_DIR
+./node_modules/.bin/tsc
 
 cp LICENSE.md src/third-party-licenses.json ecosystem.config.js $OUTPUT_DIR
 
-cp -u node_modules/sync-fetch/{shared.js,worker.js} $OUTPUT_DIR
+ENTRY_POINT_WEB="${OUTPUT_DIR}/drivers/web/index.js"
+ENTRY_POINT_P2P="${OUTPUT_DIR}/drivers/p2p/index.js"
 
-sed -i "1 i #!/usr/bin/env node \n\n process.env.NODE_ENV=\"${NODE_ENV}\"" "${OUTPUT_DIR}/index.js"
+sed -i "1 i #!/usr/bin/env node \n\n process.env.NODE_ENV=\"${NODE_ENV}\"" $ENTRY_POINT_WEB $ENTRY_POINT_P2P 

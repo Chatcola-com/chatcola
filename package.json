@@ -1,15 +1,15 @@
 {
   "name": "chatcola-server",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "main": "build/p2p/index.js",
   "bin": {
-    "chatcola-server-http": "./build/http/index.js",
-    "chatcola-server": "./build/p2p/index.js"
+    "chatcola-server-http": "./build/drivers/web/index.js",
+    "chatcola-server": "./build/drivers/p2p/index.js"
   },
   "author": {
     "name": "Antoni Papiewski",
     "email": "antekpapiewski <at> gmail.com"
-  },  
+  },
   "private": false,
   "license": "AGPL-3.0",
   "devDependencies": {
@@ -35,7 +35,6 @@
     "@types/ws": "^7.2.6",
     "babel-jest": "^26.1.0",
     "jest": "^26.0.1",
-    "ncc": "^0.3.6",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
     "ts-jest": "^26.0.0",

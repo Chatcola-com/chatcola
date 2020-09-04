@@ -7,6 +7,23 @@ babel.config.js
 jest.config.js
 ecosystem.config.js
 
+assets-*
+
+chatcola.nedb*
+*.nedb
+
+yarn-error.log
+
+*.pem
+
+.travis.yml
+
+nodemon.json
+
+nginx.configuration
+
+chatcola.json
+
 tsconfi*.json
 
 coverage

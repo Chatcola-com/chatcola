@@ -49,7 +49,18 @@ This repository hosts the chatcola server needed to self-host reliance and stora
   chatcola-server
   ```
 
-you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar")
+* If you plan to use the server for longer (i.e. raspberry pi), daemonize it with some process manager, for example:
+```bash
+ $ npm install -g pm2 
+ $ pm2 run "chatcola-server"
+```
+
+you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar") - 
+
+**To host the chatroom on your instance insert** <h1>webrtc:{{YOUR INSTANCE ADDRESS GOES HERE}}</h1> **when creating a chatroom at chatcola.com/start**
+
+
+For example, if you have address foobar, then you will have to insert webrtc:foobar
 
 If you want to change the address later run the server with the `--resetAddress` flag:
 
@@ -63,52 +74,22 @@ you will be then guided through the process of assigning address again. Note tha
 
 This comes a bit harder than hosting a webrtc instance, but provides a more performant and probably more stable experience.
 
-##### What you'll need
+You'll need a linux computer (probably a VPS) with a public IP
 
-* a linux computer (probably a VPS) with a public IP and shell access. (`sudo` is not required, but simplifies things masivelly as shown below)
+1. Point your domain name (you can get a free one at [Freenom.com](https://www.freenom.com/en/index.html?lang=en)) 
+to the VPS.
 
-# Installing chatcola
+2. Make a `~/.chatcola-http` directory
 
-1. Install node.js version 14.4.0 or later if you haven't yet - refer to step 1 in webrtc installation
+3. Copy your SSL cert files (they need to be named `fullchain.pem` for the cert and `privkey.pem` for the private key) to `~/.chatcola-http` directory
 
-2. Install chatcola-server:
-
-```bash
-  npm install -g chatcola-server
-```
-
-You need 2 things to start a http-operated chatcola instance, both of them you can get for free:
-
-* A domain name
-
-Having a domain is necessary to provide SSL encryption.
-
-If you already have a domain that is pointing to your VPS, then you can skip this step.
-
-To get a free domain name head over to [Freenom.com](https://www.freenom.com/en/index.html?lang=en)
-
- * Get a SSL certificate
-
-Head over to [Certbot - Certbot Instructions](https://certbot.eff.org/instructions) To get a free certificate. Once you are done, something like this will show up:
-
-```textfile
-- Congratulations! Your certificate and chain have been saved at:
-   /etc/letsencrypt/live/<YOUR DOMAIN NAME>/fullchain.pem // <-----------
-   Your key file has been saved at:
-   /etc/letsencrypt/live/<YOUR DOMAIN NAME>/privkey.pem < -----------
-```
-
-You'll need these files (`fullchain.pem` and `privkey.pem` ). Copy them to chatcola assets directory, which lives in `~/.chatcola/`
-
- ---
-
-At this point you should have already installed chatcola and prepared your home directory to look like so:
+4. At this point you should have already installed `chatcola-server` from npm and prepared your home directory to look like so:
 
 ```filesystem
 /home/<your-username>/
-├── .chatcola/ # <----- notice the dot
-│   ├── privkey.pem
-|   ├── fullchain.pem
+├── .chatcola-http/ # <----- notice the dot
+│    ├── privkey.pem
+|    |── fullchain.pem
 ```
 
 You are now ready to launch the chatcola server.
@@ -125,6 +106,7 @@ Available options are:
 
 * `SHOULD_REPORT_ERRORS` Set this to `false` to disable our [sentry](https://github.com/getsentry/sentry).
 
+Both of them should be set as environent variables.
 
 ## Building from source
 
