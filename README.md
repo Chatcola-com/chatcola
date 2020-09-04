@@ -49,7 +49,16 @@ This repository hosts the chatcola server needed to self-host reliance and stora
   chatcola-server
   ```
 
-you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar") - later, when creating a chatroom insert ***webrtc:<your_instance_address>*** as instance address - i.e. if the instance address you provided is foobar, then on chatcola.com/start you should insert **wrtc:foobar**
+* If you plan to use the server for longer (i.e. raspberry pi), daemonize it with some process manager, for example:
+```bash
+ $ npm install -g pm2 
+ $ pm2 run "chatcola-server"
+```
+
+you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar") - 
+
+### To host the chatroom on your instance insert webrtc:<your instance address> when creating a chatroom at chatcola.com/start
+For example, if you have address foobar, then you will have to insert webrtc:foobar
 
 If you want to change the address later run the server with the `--resetAddress` flag:
 
