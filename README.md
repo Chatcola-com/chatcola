@@ -49,7 +49,7 @@ This repository hosts the chatcola server needed to self-host reliance and stora
   chatcola-server
   ```
 
-you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar")
+you will be asked for instance address, give it a string that's easy for you to remember (it can be anything provided no one has taken it before, i.e. "foobar") - **later, when creating a chatroom insert webrtc:<your_instance_address> as instance address - i.e. if the instance address you provided is foobar, then on chatcola.com/start you should insert wrtc:foobar
 
 If you want to change the address later run the server with the `--resetAddress` flag:
 
