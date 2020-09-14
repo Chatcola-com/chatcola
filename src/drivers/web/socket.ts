@@ -67,7 +67,7 @@ export default function websocketLoader(server: Server) {
         ws.on("message", function(data) {
 
              //@ts-ignore
-            const context = ws.locals;
+            const context = interfacedChatroomSocket.locals;
     
             try {
                 const message = JSON.parse(data.toString());

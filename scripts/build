@@ -9,11 +9,23 @@ OUTPUT_DIR=./build/
 
 mkdir -p $OUTPUT_DIR
 
-./node_modules/.bin/tsc
+if [ NODE_ENV = production ]
+then
+    ./node_modules/.bin/tsc
+else 
+    ./node_modules/.bin/ncc build "./src/drivers/web/index.ts" -o $OUTPUT_DIR
+fi
+
+
 
 cp LICENSE.md src/third-party-licenses.json ecosystem.config.js $OUTPUT_DIR
 
-ENTRY_POINT_WEB="${OUTPUT_DIR}/drivers/web/index.js"
-ENTRY_POINT_P2P="${OUTPUT_DIR}/drivers/p2p/index.js"
-
-sed -i "1 i #!/usr/bin/env node \n\n process.env.NODE_ENV=\"${NODE_ENV}\"" $ENTRY_POINT_WEB $ENTRY_POINT_P2P 
+if [ NODE_ENV = production ] 
+then
+    ENTRY_POINT_WEB="${OUTPUT_DIR}/drivers/web/index.js"
+    ENTRY_POINT_P2P="${OUTPUT_DIR}/drivers/p2p/index.js"
+    sed -i "1 i #!/usr/bin/env node \n\n process.env.NODE_ENV=\"${NODE_ENV}\"" $ENTRY_POINT_WEB $ENTRY_POINT_P2P 
+else
+    ENTRY_POINT_WEB="${OUTPUT_DIR}/index.js"
+    sed -i "1 i #!/usr/bin/env node \n\n process.env.NODE_ENV=\"${NODE_ENV}\"" $ENTRY_POINT_WEB  
+fi
