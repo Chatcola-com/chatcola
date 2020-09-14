@@ -46,8 +46,8 @@ export function removeSocket(socket: TChatroomSocket) {
     activeSockets[socket.locals.slug] = activeSockets[socket.locals.slug].filter( client => client !== socket );
 }
 
-export function getChatroomSockets(slug: string) {
-    return activeSockets[slug];
+export function getChatroomSockets(slug: string): TChatroomSocket[] {
+    return activeSockets[slug] || [];
 }
 
 export function publishToChatroom(slug: string, message: {[key: string]: any}) {

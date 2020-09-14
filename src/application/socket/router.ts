@@ -21,6 +21,7 @@ import * as Controller from "./controllers";
 import incomingMessageSchema from "./schema";
 
 import { AppError } from "../../infrastructure/utils";
+import { ZodError } from "zod";
 
 type TParsedBody = { [key: string]: any; };
 type TSocketContext = {
@@ -51,8 +52,8 @@ export default function socketRouter(body: TParsedBody, context: TSocketContext)
     } catch ( error ) {
 
         if(
-            error instanceof AppError &&
-            !error.shouldReport
+            (error instanceof ZodError) ||
+            (error instanceof AppError && !error.shouldReport)
         ) {
             console.error(`while receiving socket message: `, error, body, context);
             

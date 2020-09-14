@@ -60,16 +60,6 @@ export default () => {
 
         activeSockets.addSocket(socket);
 
-        const active_users = 
-            activeSockets.getChatroomSockets(socket.locals.slug).map(s => s.locals.name);
-    
-        socket.send( {
-            type: "active_users",
-            data: { 
-                active_users
-            }
-        });
-
         socket.send({
             type: "whoami",
             data: { 
@@ -85,7 +75,21 @@ export default () => {
                     user_name: socket.locals.name
                 }
             }
-        )
+        );
+
+        const activeChatroomUsers = 
+            activeSockets.getChatroomSockets(socket.locals.slug);
+
+        const active_users = activeChatroomUsers?.map(s => s.locals.name);
+        const users_in_call = activeChatroomUsers?.filter(s => s.locals.isInCall).map(s => s.locals.name);
+
+        socket.send({
+            type: "active_users",
+            data: { 
+                active_users,
+                users_in_call
+            }
+        });
     })
 
     emitter.on(events.CLIENT_DISCONNECTED, async (socket: activeSockets.TChatroomSocket) => {

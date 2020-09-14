@@ -52,6 +52,11 @@ export default async function bootstrapChatroomSocketDataChannel(channel: RTCDat
         return;
     }
 
+    channel.send(JSON.stringify({
+        kind: "ACK",
+        data: {}
+    }))
+
     eventEmitter.emit(events.NEW_CLIENT_CONNECTED, interfacedChatroomSocket);
 
     channel.addEventListener("close", () => eventEmitter.emit(events.CLIENT_DISCONNECTED, interfacedChatroomSocket))
