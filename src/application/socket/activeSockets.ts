@@ -21,19 +21,42 @@ export type TChatroomSocket = {
     locals: {
         slug: string;
         name: string;
+        isInCall: boolean;
     }
-    send: (message: string) => any;
+    send: (message: {[key: string]: any}) => any;
     close: () => any;   
     isOpen: () => boolean;
 }
 
-export const activeSockets: {
+const activeSockets: {
     [slug: string]: TChatroomSocket[]
 } = {};
 
-export function publishToChatroom(slug: string, message: string) {
+export function addSocket(socket: TChatroomSocket) {
+    if(!activeSockets[socket.locals.slug])  
+            activeSockets[socket.locals.slug] = [];
+
+    activeSockets[socket.locals.slug].push(socket);   
+}
+
+export function removeSocket(socket: TChatroomSocket) {
+    if(!activeSockets[socket.locals.slug])
+            return;
+
+    activeSockets[socket.locals.slug] = activeSockets[socket.locals.slug].filter( client => client !== socket );
+}
+
+export function getChatroomSockets(slug: string) {
+    return activeSockets[slug];
+}
+
+export function publishToChatroom(slug: string, message: {[key: string]: any}) {
     activeSockets[slug]?.forEach( socket => {
         if(socket.isOpen())
             socket.send(message);
     })
+}
+
+export function getUserFromChatroom(slug: string, username: string): TChatroomSocket | undefined {
+    return activeSockets[slug].find(socket => socket.locals.name === username);
 }

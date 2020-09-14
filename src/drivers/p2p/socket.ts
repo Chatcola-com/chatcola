@@ -23,17 +23,17 @@ import { Container } from "typedi";
 import { EventEmitter } from "events";
 
 import events from "../../application/events/events";
-import { publishToChatroom, TChatroomSocket } from "../../application/socket/activeSockets";
+import * as activeSockets from "../../application/socket/activeSockets";
 
 const eventEmitter = Container.get<EventEmitter>("eventEmitter");
 
 export default async function bootstrapChatroomSocketDataChannel(channel: RTCDataChannel) {
 
-    const interfacedChatroomSocket: TChatroomSocket = {
+    const interfacedChatroomSocket: activeSockets.TChatroomSocket = {
         //@ts-ignore
         locals: channel.locals,
         send (data) {
-            channel.send(data)
+            channel.send(JSON.stringify(data))
         },
         isOpen() {
             return channel.readyState === "open";
@@ -59,22 +59,11 @@ export default async function bootstrapChatroomSocketDataChannel(channel: RTCDat
     channel.onmessage = (e) => {
         const message = JSON.parse(e.data.toString());
 
-        const result = router(
+        router(
             message,
             //@ts-ignore
             channel.locals
         )
-
-        if(!result)
-            return;
-
-        //@ts-ignore
-        const slug = channel?.locals?.slug;
-
-        if(result.broadcast)
-            publishToChatroom(slug, JSON.stringify(result.body))
-        else if( interfacedChatroomSocket.isOpen() )
-            interfacedChatroomSocket.send(JSON.stringify(result.body));
     }
 }
 

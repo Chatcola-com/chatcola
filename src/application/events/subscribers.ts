@@ -30,7 +30,7 @@ import { TKeyValueStore } from "../../types/infrastructure";
 
 import mongoose from "mongoose";
 
-import { activeSockets, publishToChatroom, TChatroomSocket } from "../socket/activeSockets";
+import * as activeSockets from "../socket/activeSockets";
 
 const emitter = Container.get<EventEmitter>("eventEmitter");
 
@@ -56,60 +56,50 @@ export default () => {
         sendPushNotifications.aboutIncomingMessage(message.slug, message);
     });
 
-    emitter.on(events.NEW_CLIENT_CONNECTED, async (socket: TChatroomSocket) => {
+    emitter.on(events.NEW_CLIENT_CONNECTED, async (socket: activeSockets.TChatroomSocket) => {
 
-        if(!activeSockets[socket.locals.slug])  
-            activeSockets[socket.locals.slug] = [];
+        activeSockets.addSocket(socket);
 
-        activeSockets[socket.locals.slug].push(socket);   
-
-        const active_users = getActiveUsers( socket.locals.slug );
+        const active_users = 
+            activeSockets.getChatroomSockets(socket.locals.slug).map(s => s.locals.name);
     
-        socket.send(JSON.stringify( {
+        socket.send( {
             type: "active_users",
             data: { 
                 active_users
             }
-        } ))
+        });
 
-        socket.send(JSON.stringify({
+        socket.send({
             type: "whoami",
             data: { 
                 name: socket.locals.name
             }
-        }))
+        });
 
-        publishToChatroom(
+        activeSockets.publishToChatroom(
             socket.locals.slug,
-            JSON.stringify({
+            {
                 type: "user_joined",
                 data: {
                     user_name: socket.locals.name
                 }
-            })
+            }
         )
     })
 
-    emitter.on(events.CLIENT_DISCONNECTED, async (ws: TChatroomSocket) => {
+    emitter.on(events.CLIENT_DISCONNECTED, async (socket: activeSockets.TChatroomSocket) => {
         
-        if(!activeSockets[ws.locals.slug])
-            return;
+        activeSockets.removeSocket(socket);
 
-        activeSockets[ws.locals.slug] = activeSockets[ws.locals.slug].filter( client => client !== ws );
-
-        const randomSocket = getSocketFromChatroom(ws.locals.slug);
-
-        if(!randomSocket)
-            return;
-
-        publishToChatroom(
-            ws.locals.slug,
-            JSON.stringify( {
+        activeSockets.publishToChatroom(
+            socket.locals.slug,
+            {
                 type: "user_left",
                 data: {
-                    user_name: ws.locals.name
+                    user_name: socket.locals.name
                 }
-            })
+            }
         )
     })
 
@@ -123,39 +113,24 @@ export default () => {
 
         emitter.emit(events.NEW_MESSAGE, message);
 
-        const randomSocket = getSocketFromChatroom(slug);
 
-        if(randomSocket)
-            publishToChatroom(
-                randomSocket?.locals.slug,    
-                JSON.stringify({
-                    type: "message",
-                    data: {
-                        message
-                    }
-                })
-            )
+        activeSockets.publishToChatroom(
+            slug,    
+            {
+                type: "message",
+                data: {
+                    message
+                }
+            }
+        );
 
-        const ws = activeSockets[slug]?.find( client => client.locals.name === user_name);
+        const socket = activeSockets.getUserFromChatroom(slug, user_name);
 
-        if(!ws)
+        if(!socket)
             return;
 
-        ws.send(JSON.stringify({ type: "kick" }))
+        socket.send({ type: "kick", data: {} })
 
-        setTimeout(() => ws.close(), 1000);
+        setTimeout(() => socket.close(), 1000);
     });
-}
-
-function getSocketFromChatroom(slug: string): TChatroomSocket | null {
-    if(activeSockets[slug]?.length > 0)
-        return activeSockets[slug][0];
-
-    return null;
-}
-
-function getActiveUsers(slug: string): Array<string> {
-    const result = activeSockets[slug].map( ws => ws.locals.name )
-
-    return result;
 }
