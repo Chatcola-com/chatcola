@@ -20,16 +20,22 @@
 import router from "../../application/socket/router";
 
 import { Container } from "typedi";
-import { EventEmitter } from "events";
 
-import events from "../../application/events/events";
-import * as activeSockets from "../../application/socket/activeSockets";
+import ActiveSocketsManager, { TChatroomSocket } from "../../application/socket/activeSockets";
 
-const eventEmitter = Container.get<EventEmitter>("eventEmitter");
+const socketManager = Container.get(ActiveSocketsManager);
 
 export default async function bootstrapChatroomSocketDataChannel(channel: RTCDataChannel) {
+    
+    try {
+        await awaitChannelOpen(channel);
+    }
+    catch ( error ) {
+        console.error("while waiting for rtc channel to open: ", error);
+        return;
+    }
 
-    const interfacedChatroomSocket: activeSockets.TChatroomSocket = {
+    const interfacedChatroomSocket: TChatroomSocket = {
         //@ts-ignore
         locals: channel.locals,
         send (data) {
@@ -43,23 +49,17 @@ export default async function bootstrapChatroomSocketDataChannel(channel: RTCDat
         }
     }
 
-    
-    try {
-        await awaitChannelOpen(channel);
-    }
-    catch ( error ) {
-        console.error("while waiting for rtc channel to open: ", error);
-        return;
-    }
-
     channel.send(JSON.stringify({
         kind: "ACK",
         data: {}
     }))
 
-    eventEmitter.emit(events.NEW_CLIENT_CONNECTED, interfacedChatroomSocket);
+    socketManager.socketJoined(interfacedChatroomSocket);
 
-    channel.addEventListener("close", () => eventEmitter.emit(events.CLIENT_DISCONNECTED, interfacedChatroomSocket))
+    channel.addEventListener(
+        "close", 
+        () => socketManager.socketLeft(interfacedChatroomSocket)
+    );
 
     channel.onmessage = (e) => {
         const message = JSON.parse(e.data.toString());

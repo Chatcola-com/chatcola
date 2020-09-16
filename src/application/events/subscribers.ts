@@ -22,27 +22,15 @@ import events from "./events";
 import { Container } from "typedi";
 import { EventEmitter } from "events";
 
-import MessageService from "../message.service";
-import { TMessage } from "../../application/entities/message";
-import { TChatroom } from "../../application/entities/chatroom";
-
 import { TKeyValueStore } from "../../types/infrastructure";
-
-import mongoose from "mongoose";
-
-import * as activeSockets from "../socket/activeSockets";
 
 const emitter = Container.get<EventEmitter>("eventEmitter");
 
-const messageService = Container.get(MessageService);
-
 const keyValueStore = Container.get<TKeyValueStore>("keyValueStore");
-
-import * as sendPushNotifications from "../resources/sendPushNotifications";
 
 export default () => {
 
-    emitter.on(events.NEW_CHATROOM, async (details: TChatroom) => {
+    emitter.on(events.NEW_CHATROOM, async () => {
         let chatroomCount = keyValueStore.getItem("CHATROOM_COUNT");
         if((typeof chatroomCount) !== "number")
             chatroomCount = 0;
@@ -50,91 +38,4 @@ export default () => {
         keyValueStore.setItem("CHATROOM_COUNT", chatroomCount + 1);
     });
 
-    emitter.on(events.NEW_MESSAGE, async (message: TMessage) => {
-        messageService.new(message);
-
-        sendPushNotifications.aboutIncomingMessage(message.slug, message);
-    });
-
-    emitter.on(events.NEW_CLIENT_CONNECTED, async (socket: activeSockets.TChatroomSocket) => {
-
-        activeSockets.addSocket(socket);
-
-        socket.send({
-            type: "whoami",
-            data: { 
-                name: socket.locals.name
-            }
-        });
-
-        activeSockets.publishToChatroom(
-            socket.locals.slug,
-            {
-                type: "user_joined",
-                data: {
-                    user_name: socket.locals.name
-                }
-            }
-        );
-
-        const activeChatroomUsers = 
-            activeSockets.getChatroomSockets(socket.locals.slug);
-
-        const active_users = activeChatroomUsers?.map(s => s.locals.name);
-        const users_in_call = activeChatroomUsers?.filter(s => s.locals.isInCall).map(s => s.locals.name);
-
-        socket.send({
-            type: "active_users",
-            data: { 
-                active_users,
-                users_in_call
-            }
-        });
-    })
-
-    emitter.on(events.CLIENT_DISCONNECTED, async (socket: activeSockets.TChatroomSocket) => {
-        
-        activeSockets.removeSocket(socket);
-
-        activeSockets.publishToChatroom(
-            socket.locals.slug,
-            {
-                type: "user_left",
-                data: {
-                    user_name: socket.locals.name
-                }
-            }
-        )
-    })
-
-    emitter.on(events.USER_KICKED_OUT, async ({ slug, user_name }) => {       
-        const message = {
-            author: `Server`,
-            content: `${user_name} has been kicked out. Bye! 🚀🚀🚀`,
-            _id: new mongoose.Types.ObjectId(),
-            slug
-        }
-
-        emitter.emit(events.NEW_MESSAGE, message);
-
-
-        activeSockets.publishToChatroom(
-            slug,    
-            {
-                type: "message",
-                data: {
-                    message
-                }
-            }
-        );
-
-        const socket = activeSockets.getUserFromChatroom(slug, user_name);
-
-        if(!socket)
-            return;
-
-        socket.send({ type: "kick", data: {} })
-
-        setTimeout(() => socket.close(), 1000);
-    });
 }

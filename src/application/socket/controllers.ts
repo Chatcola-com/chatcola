@@ -21,16 +21,18 @@ import { EventEmitter } from "events";
 
 import { Container } from "typedi";
 
-import events from "../events/events";
 import Message from "../entities/message";
+import ActiveSocketsManager from "./activeSockets";
+import MessageService from "../../application/message.service";
 
-import * as activeSockets from "./activeSockets";
+import * as sendPushNotifications from "../resources/sendPushNotifications";
 
-const emitter = Container.get<EventEmitter>("eventEmitter");
+const socketsManager = Container.get(ActiveSocketsManager);
+const messageService = Container.get(MessageService);
 
 
 export function start_typing (slug: string, userName: string) {
-  const socket = activeSockets.getUserFromChatroom(
+  const socket = socketsManager.getSocketOfUser(
     slug,
     userName
   );
@@ -44,7 +46,7 @@ export function start_typing (slug: string, userName: string) {
 }
   
 export function stop_typing (slug: string, userName: string) {
-  const socket = activeSockets.getUserFromChatroom(
+  const socket = socketsManager.getSocketOfUser(
     slug,
     userName
   );
@@ -59,7 +61,7 @@ export function stop_typing (slug: string, userName: string) {
 
 export function whoami (slug: string, userName: string) {
 
-  const socket = activeSockets.getUserFromChatroom(
+  const socket = socketsManager.getSocketOfUser(
     slug,
     userName
   );
@@ -72,7 +74,7 @@ export function whoami (slug: string, userName: string) {
   })
 }
 export function ping (slug: string, userName: string) {
-  const socket = activeSockets.getUserFromChatroom(
+  const socket = socketsManager.getSocketOfUser(
     slug,
     userName
   );
@@ -94,9 +96,10 @@ export function message ({ authorName, slug, content }: {
     content,
   });
 
-  emitter.emit(events.NEW_MESSAGE, message);
+  messageService.new(message);
+  sendPushNotifications.aboutIncomingMessage(message);
 
-  activeSockets.publishToChatroom(
+  socketsManager.publishToChatroom(
     slug,
     {
       type: "message",
@@ -112,12 +115,12 @@ export function join_call(slug: string, userName: string) {
 
   console.log(userName, " joined call");
   
-  const socket = activeSockets.getUserFromChatroom( slug, userName );
+  const socket = socketsManager.getSocketOfUser( slug, userName );
 
   if(socket)
     socket.locals.isInCall = true;
 
-  activeSockets.publishToChatroom(
+  socketsManager.publishToChatroom(
     slug,
     {
       type: "user_joined_call",
@@ -131,12 +134,12 @@ export function join_call(slug: string, userName: string) {
 export function leave_call(slug: string, userName: string) {
   console.log(userName, " left call");
   
-  const socket = activeSockets.getUserFromChatroom( slug, userName );
+  const socket = socketsManager.getSocketOfUser( slug, userName );
 
   if(socket)
     socket.locals.isInCall = false;
 
-  activeSockets.publishToChatroom(
+  socketsManager.publishToChatroom(
     slug,
     {
       type: "user_left_call",
@@ -154,7 +157,7 @@ export function call_signal(slug: string, username: string, signal: {
 }) {
   console.log("call signal: ", signal);
 
-  const targetSocket = activeSockets.getUserFromChatroom(
+  const targetSocket = socketsManager.getSocketOfUser(
     slug,
     signal.targetUser
   );

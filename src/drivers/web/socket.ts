@@ -25,14 +25,11 @@ import Ws from "ws";
 import AuthService from "../../application/auth.service";
 import { AppError } from "../../infrastructure/utils";
 import socketRouter from "../../application/socket/router";
-import { EventEmitter } from "events";
 
-import * as activeSockets from "../../application/socket/activeSockets";
-
-import events from "../../application/events/events";
+import ActiveSocketsManager, { TChatroomSocket } from "../../application/socket/activeSockets";
 
 const authService = Container.get(AuthService);
-const eventEmitter = Container.get<EventEmitter>("eventEmitter");
+const socketManager = Container.get(ActiveSocketsManager);
 
 export default function websocketLoader(server: Server) {
 
@@ -44,7 +41,7 @@ export default function websocketLoader(server: Server) {
 
     wss.on("connection", function(ws, req) {
 
-        const interfacedChatroomSocket: activeSockets.TChatroomSocket = {
+        const interfacedChatroomSocket: TChatroomSocket = {
             //@ts-ignore
             locals: req.locals,
             send (data) {
@@ -58,10 +55,10 @@ export default function websocketLoader(server: Server) {
             }
         }
 
-        eventEmitter.emit(events.NEW_CLIENT_CONNECTED, interfacedChatroomSocket);
+        socketManager.socketJoined(interfacedChatroomSocket);
 
         ws.on("close", () => {
-            eventEmitter.emit(events.CLIENT_DISCONNECTED, interfacedChatroomSocket);
+            socketManager.socketLeft(interfacedChatroomSocket);
         })
        
         ws.on("message", function(data) {

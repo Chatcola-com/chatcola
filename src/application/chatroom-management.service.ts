@@ -17,19 +17,18 @@
 |    You should have received a copy of the GNU Affero General Public License
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import { EventEmitter } from "events";
 import { Service, Inject } from "typedi";
 
 import { TChatroomRepository } from "../types/infrastructure";
 
-import events from "./events/events";
+import ActiveSocketsManager from "./socket/activeSockets";
 
 @Service()
 export default class ChatroomManagementService {
 
     constructor(
         @Inject("chatroomRepository") private chatroomRepository: TChatroomRepository,
-        @Inject("eventEmitter") private eventEmitter: EventEmitter
+        private socketManager: ActiveSocketsManager
     ) {}
 
     async revokeAccessToken(slug: string, access_token: string) {
@@ -52,7 +51,17 @@ export default class ChatroomManagementService {
         if(userExisted) {
             await this.chatroomRepository.persist(chatroom);
 
-            this.eventEmitter.emit(events.USER_KICKED_OUT, { slug, user_name });
+            const socket = this.socketManager.getSocketOfUser(
+                chatroom.slug,
+                user_name
+            );
+
+            if(!socket)
+                return;
+
+            socket.send({ type: "kick", data: {} })
+
+            setTimeout(() => socket.close(), 1000);
         }
     }
 

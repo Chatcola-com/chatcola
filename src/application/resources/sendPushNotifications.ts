@@ -27,7 +27,9 @@ const chatroomService = Container.get(ChatroomService);
 const alligatorService = Container.get(AlligatorService);
 
 
-async function sendPushAboutIncomingMessage(slug: string, message: TMessage) {
+async function sendPushAboutIncomingMessage(message: TMessage) {
+
+    const { slug } = message;
 
     const subscriptionIds = 
         await chatroomService.getPushSubscribersIds(slug, message.author);

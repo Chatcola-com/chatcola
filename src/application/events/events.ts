@@ -18,9 +18,5 @@
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 export default {
-    NEW_MESSAGE: "messages:new",
-    USER_KICKED_OUT: "clients:kicked",
     NEW_CHATROOM: "chatrooms:new",
-    NEW_CLIENT_CONNECTED: "wsconnection:new",
-    CLIENT_DISCONNECTED: "wsconection:disconnect",
 }
