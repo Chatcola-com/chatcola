@@ -23,152 +23,93 @@ import ActiveSocketsManager from "../src/application/socket/activeSockets";
 
 import router from "../src/application/socket/router";
 
-describe.skip("Socket router", () => {
+describe("Socket router", () => {
 
-  test("Test suite disabled", () => true);
+  describe("ActiveSocketsManager", () => {
 
-  /*const sampleSlug = "23-23-23-23-23-23";
-
-  function getFakeSocket(username: string) {
-    return {
-      close: jest.fn(),
-      isOpen: jest.fn(() => true),
-      send: jest.fn(),
-      locals: {
-        name: username,
-        isInCall: false,
-        slug: sampleSlug
-      },
-    };
-  }
-
-  function getSocketManager() {
-    const localSocketManager = new ActiveSocketsManager();
-    Container.set(ActiveSocketsManager, localSocketManager);
-
-    const sampleUsers = ["@andrzej", "@wieslaw", "@dagmara"];
-    const sampleSockets = sampleUsers.map(user => getFakeSocket(user));
-    const sampleContexts = sampleUsers.map(user => ({
-      name: user,
-      slug: sampleSlug
-    }));
-
-    sampleSockets.forEach(socket => localSocketManager.socketJoined(socket));
-
-    for(const i in sampleSockets) {
-      sampleSockets[i].send.mockClear();
+    function getFakeSocket(slug: string, name: string) {
+      return {
+        close: jest.fn(),
+        isOpen: jest.fn(() => true),
+        send: jest.fn(),
+        locals: {
+          slug,
+          name,
+          isInCall: false
+        }
+      }
     }
 
-    return {
-      socketManager: localSocketManager,
-      sampleSockets,
-      sampleUsers,
-      sampleContexts
-    };
-  }
+    const socketManager = new ActiveSocketsManager();
 
-  it('Should send a "pong" on "ping"', async () => {
+    const slug_1 = "2323232323";
+    const sockets_1 = [
+      getFakeSocket(slug_1, "andrzej"),
+      getFakeSocket(slug_1, "wieslaw"),
+      getFakeSocket(slug_1, "dominika"),        
+    ]
 
-    const { 
-      socketManager,
-      sampleSockets,
-      sampleContexts,
-      sampleUsers
-    } = getSocketManager();
+    for(const i in sockets_1) {
+      socketManager.socketJoined(sockets_1[i]);
+      sockets_1[i].send.mockClear();
+    }
 
-    router(
-      {
-        type: "ping",
-        data: {},
-      },
-      sampleContexts[0]
-    );
-    
-    expect(sampleSockets[0].send).toHaveBeenCalledWith({ type: "pong", data: {} });
+    const slug_2 = "3434534345";
+    const sockets_2 = [
+      getFakeSocket(slug_2, "michal"),
+      getFakeSocket(slug_2, "przemek"),
+      getFakeSocket(slug_2, "piotrek"),        
+    ]
 
-    expect(sampleSockets[1].send).not.toHaveBeenCalled();
-    expect(sampleSockets[2].send).not.toHaveBeenCalled();
-    
-  });
+    for(const i in sockets_2) {
+      socketManager.socketJoined(sockets_2[i]);
+      sockets_2[i].send.mockClear();
+    }
 
-  it('Should broadcast "stop_typing" on receiving such event', async () => {
+    it("Should broadcast a message on publishToChatroom", () => {
 
-    const { 
-      socketManager,
-      sampleSockets,
-      sampleContexts,
-      sampleUsers
-    } = getSocketManager();
+        socketManager.publishToChatroom(slug_1, {
+            "E": "F"
+        });
 
-    router(
-      {
-        type: "start_typing",
-        data: {},
-      },
-      sampleContexts[0]
-    );
-
-    sampleSockets.forEach(socket => {
-      expect(socket.send).toHaveBeenCalledWith({
-        type: "start_typing",
-        data: {
-          userName: sampleContexts[0].name,
-        },
-      })
-    });
-
-  });
-
-  it(`Should broadcast "stop_typing" on receiving such event"`, async () => {
-      router(
-        {
-          type: "stop_typing",
-          data: {},
-        },
-        sampleContexts[0]
-      );
-      
-      sampleSockets.forEach(socket => {
-
-        expect(socket.send).toHaveBeenCalledWith({
-          type: "stop_typing",
-          data: {
-            userName: sampleContexts[0].name,
-          },
+        sockets_1.forEach(socket => {
+          expect(socket.send).toHaveBeenCalledWith({
+            "E": "F"
+          });
         })
 
-      });
-    })
+        sockets_2.forEach(socket => {
+          expect(socket.send).not.toHaveBeenCalledWith({
+            "E": "F"
+          });
+        })
+    });
+
+    it("Should return a socket of user of name if they didnt disconnect", () => {
+
+      const socket = socketManager.getSocketOfUser(
+        slug_1, 
+        sockets_1[0].locals.name
+      );
+
+      expect(socket).toBeTruthy();
+
+      expect(
+        () => socket!.send({})
+      ).not.toThrowError();
+    });
+
+    it("Should NOT return a socket of user of name if they disconnected", () => {
+
+      socketManager.socketLeft(sockets_1[0]);
+
+      const socket = socketManager.getSocketOfUser(
+        slug_1, 
+        sockets_1[0].locals.name
+      );
+
+      expect(socket).not.toBeTruthy();
+    });
 
   })
-
-  it("Should emit back the message", () => {
-    router(
-      {
-        type: "message",
-        data: {
-          content: "hehehe",
-        },
-      },
-      sampleContexts[0]
-    );
-
-    sampleSockets.forEach(socket => {
-
-      const calledWithEvent = socket.send.mock.calls[0][0];
-
-      const { _id, ...restOfEvent } = calledWithEvent;
-
-      expect(restOfEvent).toMatchObject({
-        type: "message",
-        data: {
-          message: {
-            content: "hehehe",
-            author: sampleContexts[0].name,
-          },
-        },
-      });
-
-    })
-*/
 });
