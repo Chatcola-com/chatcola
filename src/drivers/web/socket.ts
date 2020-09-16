@@ -25,13 +25,11 @@ import Ws from "ws";
 import AuthService from "../../application/auth.service";
 import { AppError } from "../../infrastructure/utils";
 import socketRouter from "../../application/socket/router";
-import { EventEmitter } from "events";
 
-import events from "../../application/events/events";
-import { publishToChatroom } from "../../application/socket/activeSockets";
+import ActiveSocketsManager, { TChatroomSocket } from "../../application/socket/activeSockets";
 
 const authService = Container.get(AuthService);
-const eventEmitter = Container.get<EventEmitter>("eventEmitter");
+const socketManager = Container.get(ActiveSocketsManager);
 
 export default function websocketLoader(server: Server) {
 
@@ -43,35 +41,35 @@ export default function websocketLoader(server: Server) {
 
     wss.on("connection", function(ws, req) {
 
-        //@ts-ignore
-        ws.locals = req.locals;
-        //@ts-ignore
-        ws.isOpen = () => ws.readyState === Ws.OPEN
+        const interfacedChatroomSocket: TChatroomSocket = {
+            //@ts-ignore
+            locals: req.locals,
+            send (data) {
+                ws.send(JSON.stringify(data))
+            },
+            isOpen() {
+                return ws.readyState === Ws.OPEN;
+            },
+            close() {
+                return ws.close();
+            }
+        }
 
-        eventEmitter.emit(events.NEW_CLIENT_CONNECTED, ws);
+        socketManager.socketJoined(interfacedChatroomSocket);
 
         ws.on("close", () => {
-            eventEmitter.emit(events.CLIENT_DISCONNECTED, ws);
+            socketManager.socketLeft(interfacedChatroomSocket);
         })
        
         ws.on("message", function(data) {
 
              //@ts-ignore
-            const context = ws.locals;
+            const context = interfacedChatroomSocket.locals;
     
             try {
                 const message = JSON.parse(data.toString());
                 
-                const result = socketRouter(message, context);
-
-                if(!result)
-                    return;
-
-                else if(result.broadcast) 
-                    publishToChatroom(context.slug, JSON.stringify(result.body));
-                else 
-                    ws.send(JSON.stringify(result.body));
-                
+                socketRouter(message, context);
             }
             catch ( error ) {
                 if(

@@ -20,29 +20,12 @@
 import router from "../../application/socket/router";
 
 import { Container } from "typedi";
-import { EventEmitter } from "events";
 
-import events from "../../application/events/events";
-import { publishToChatroom, TChatroomSocket } from "../../application/socket/activeSockets";
+import ActiveSocketsManager, { TChatroomSocket } from "../../application/socket/activeSockets";
 
-const eventEmitter = Container.get<EventEmitter>("eventEmitter");
+const socketManager = Container.get(ActiveSocketsManager);
 
 export default async function bootstrapChatroomSocketDataChannel(channel: RTCDataChannel) {
-
-    const interfacedChatroomSocket: TChatroomSocket = {
-        //@ts-ignore
-        locals: channel.locals,
-        send (data) {
-            channel.send(data)
-        },
-        isOpen() {
-            return channel.readyState === "open";
-        },
-        close() {
-            return channel.close();
-        }
-    }
-
     
     try {
         await awaitChannelOpen(channel);
@@ -52,29 +35,40 @@ export default async function bootstrapChatroomSocketDataChannel(channel: RTCDat
         return;
     }
 
-    eventEmitter.emit(events.NEW_CLIENT_CONNECTED, interfacedChatroomSocket);
+    const interfacedChatroomSocket: TChatroomSocket = {
+        //@ts-ignore
+        locals: channel.locals,
+        send (data) {
+            channel.send(JSON.stringify(data))
+        },
+        isOpen() {
+            return channel.readyState === "open";
+        },
+        close() {
+            return channel.close();
+        }
+    }
 
-    channel.addEventListener("close", () => eventEmitter.emit(events.CLIENT_DISCONNECTED, interfacedChatroomSocket))
+    channel.send(JSON.stringify({
+        kind: "ACK",
+        data: {}
+    }))
+
+    socketManager.socketJoined(interfacedChatroomSocket);
+
+    channel.addEventListener(
+        "close", 
+        () => socketManager.socketLeft(interfacedChatroomSocket)
+    );
 
     channel.onmessage = (e) => {
         const message = JSON.parse(e.data.toString());
 
-        const result = router(
+        router(
             message,
             //@ts-ignore
             channel.locals
         )
-
-        if(!result)
-            return;
-
-        //@ts-ignore
-        const slug = channel?.locals?.slug;
-
-        if(result.broadcast)
-            publishToChatroom(slug, JSON.stringify(result.body))
-        else if( interfacedChatroomSocket.isOpen() )
-            interfacedChatroomSocket.send(JSON.stringify(result.body));
     }
 }
 

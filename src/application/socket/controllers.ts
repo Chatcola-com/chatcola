@@ -17,66 +17,76 @@
 |    You should have received a copy of the GNU Affero General Public License
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import { EventEmitter } from "events";
-
 import { Container } from "typedi";
 
-import events from "../events/events";
 import Message from "../entities/message";
-import { TSocketResponse } from "./schema";
+import ActiveSocketsManager from "./activeSockets";
+import MessageService from "../../application/message.service";
 
-const emitter = Container.get<EventEmitter>("eventEmitter");
+import * as sendPushNotifications from "../resources/sendPushNotifications";
+
+const socketsManager = Container.get(ActiveSocketsManager);
+const messageService = Container.get(MessageService);
 
 
-export function start_typing (userName: string): TSocketResponse {
-  return {
-    broadcast: true,
-    body: {
-      type: "start_typing",
-      data: {
-          userName
-      }
+export function start_typing (slug: string, userName: string) {
+  const socket = socketsManager.getSocketOfUser(
+    slug,
+    userName
+  );
+  
+  socket?.send({
+    type: "start_typing",
+    data: {
+        userName
     }
-  }
+  });
 }
   
-export function stop_typing (userName: string): TSocketResponse {
-  return {
-    broadcast: true,
-    body: {
-      type: "stop_typing",
-      data: {
-          userName
-      }
+export function stop_typing (slug: string, userName: string) {
+  const socket = socketsManager.getSocketOfUser(
+    slug,
+    userName
+  );
+  
+  socket?.send({
+    type: "stop_typing",
+    data: {
+        userName
     }
-  }
+  })
 }
 
-export function whoami (nameOfTheUser: string): TSocketResponse {
-  return {
-    broadcast: false,
-    body: {
-      type: "whoami",
-      data: {
-          yourName: nameOfTheUser
-      }
+export function whoami (slug: string, userName: string) {
+
+  const socket = socketsManager.getSocketOfUser(
+    slug,
+    userName
+  );
+
+  socket?.send({
+    type: "whoami",
+    data: {
+        yourName: userName
     }
-  }
+  })
 }
-export function ping (): TSocketResponse {
-  return {
-    broadcast: false,
-    body: {
-      type: "pong",
-      data: {}
-    }
-  }
+export function ping (slug: string, userName: string) {
+  const socket = socketsManager.getSocketOfUser(
+    slug,
+    userName
+  );
+
+  socket?.send({
+    type: "pong",
+    data: {}
+  });
 }
 export function message ({ authorName, slug, content }: { 
   authorName: string;
   slug: string;
   content: string;
-}): TSocketResponse {
+}) {
 
   const message = Message.createNew({
     author: authorName,
@@ -84,15 +94,72 @@ export function message ({ authorName, slug, content }: {
     content,
   });
 
-  emitter.emit(events.NEW_MESSAGE, message)
-  
-  return {
-    broadcast: true,
-    body: {
+  messageService.new(message);
+  sendPushNotifications.aboutIncomingMessage(message);
+
+  socketsManager.publishToChatroom(
+    slug,
+    {
       type: "message",
       data: {
         message
       }
     }
-  }
+  )
+
+}
+
+export function join_call(slug: string, userName: string) {
+  
+  const socket = socketsManager.getSocketOfUser( slug, userName );
+
+  if(socket)
+    socket.locals.isInCall = true;
+
+  socketsManager.publishToChatroom(
+    slug,
+    {
+      type: "user_joined_call",
+      data: {
+        user_name: userName
+      }
+    }
+  )
+}
+
+export function leave_call(slug: string, userName: string) {  
+  const socket = socketsManager.getSocketOfUser( slug, userName );
+
+  if(socket)
+    socket.locals.isInCall = false;
+
+  socketsManager.publishToChatroom(
+    slug,
+    {
+      type: "user_left_call",
+      data: {
+        user_name: userName
+      }
+    }
+  )
+} 
+
+export function call_signal(slug: string, username: string, signal: {
+  kind: string;
+  targetUser: string;
+  payload: string;
+}) {
+  
+  const targetSocket = socketsManager.getSocketOfUser(
+    slug,
+    signal.targetUser
+  );
+
+  targetSocket?.send({
+    type: "call_signal",
+    data: {
+      ...signal,
+      sendingUser: username
+    }
+  })
 }

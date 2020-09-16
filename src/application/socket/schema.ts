@@ -41,15 +41,21 @@ export default zod.union([
         data: zod.object({
             content: zod.string().nonempty()
         })
-    })
+    }),
+    zod.object({
+        type: zod.literal("join_call"),
+        data: zod.object({})
+    }),
+    zod.object({
+        type: zod.literal("leave_call"),
+        data: zod.object({})
+    }),
+    zod.object({
+        type: zod.literal("call_signal"),
+        data: zod.object({
+            targetUser: zod.string().nonempty(),
+            kind: zod.enum(["offer", "response", "icecandidate"]),
+            payload: zod.string().nonempty()
+        })
+    }),
 ]);
-
-export type TSocketResponse = {
-    broadcast?: boolean;
-    body: {
-        type: string;
-        data: {
-            [key: string]: any;
-        }
-    }
-}

@@ -21,19 +21,89 @@ export type TChatroomSocket = {
     locals: {
         slug: string;
         name: string;
+        isInCall: boolean;
     }
-    send: (message: string) => any;
+    send: (message: {[key: string]: any}) => any;
     close: () => any;   
     isOpen: () => boolean;
 }
 
-export const activeSockets: {
-    [slug: string]: TChatroomSocket[]
-} = {};
+export default class ActiveSocketsManager {
 
-export function publishToChatroom(slug: string, message: string) {
-    activeSockets[slug]?.forEach( socket => {
-        if(socket.isOpen())
-            socket.send(message);
-    })
+    private activeSockets: {
+        [slug: string]: TChatroomSocket[]
+    } = {};
+
+
+    socketJoined(socket: TChatroomSocket) {
+        const { slug } = socket.locals;
+
+        if(!this.activeSockets[slug])  
+                this.activeSockets[slug] = [];
+
+        this.activeSockets[slug].push(socket);   
+
+        socket.send({
+            type: "whoami",
+            data: { 
+                name: socket.locals.name
+            }
+        });
+
+        this.publishToChatroom(
+            socket.locals.slug,
+            {
+                type: "user_joined",
+                data: {
+                    user_name: socket.locals.name
+                }
+            }
+        );
+
+        const activeChatroomUsers = 
+            this.activeSockets[slug];
+
+        const active_users = activeChatroomUsers?.map(s => s.locals.name);
+        const users_in_call = activeChatroomUsers?.filter(s => s.locals.isInCall).map(s => s.locals.name);
+
+        socket.send({
+            type: "active_users",
+            data: { 
+                active_users,
+                users_in_call
+            }
+        });
+    }
+
+    socketLeft(socket: TChatroomSocket) {
+        const { slug } = socket.locals;
+
+        if(!this.activeSockets[slug])
+                return;
+
+        this.activeSockets[slug] = 
+            this.activeSockets[slug].filter( client => client !== socket );
+
+
+        this.publishToChatroom(
+            socket.locals.slug,
+            {
+                type: "user_left",
+                data: {
+                    user_name: socket.locals.name
+                }
+            }
+        )
+    }
+
+    publishToChatroom(slug: string, message: {[key: string]: any}) {
+        this.activeSockets[slug]?.forEach( socket => {
+            if(socket.isOpen())
+                socket.send(message);
+        })
+    }
+
+    getSocketOfUser(slug: string, username: string): TChatroomSocket | undefined {
+        return this.activeSockets[slug]?.find(socket => socket.locals.name === username);
+    }
 }
