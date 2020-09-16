@@ -17,8 +17,6 @@
 |    You should have received a copy of the GNU Affero General Public License
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import { EventEmitter } from "events";
-
 import { Container } from "typedi";
 
 import Message from "../entities/message";
@@ -112,8 +110,6 @@ export function message ({ authorName, slug, content }: {
 }
 
 export function join_call(slug: string, userName: string) {
-
-  console.log(userName, " joined call");
   
   const socket = socketsManager.getSocketOfUser( slug, userName );
 
@@ -131,9 +127,7 @@ export function join_call(slug: string, userName: string) {
   )
 }
 
-export function leave_call(slug: string, userName: string) {
-  console.log(userName, " left call");
-  
+export function leave_call(slug: string, userName: string) {  
   const socket = socketsManager.getSocketOfUser( slug, userName );
 
   if(socket)
@@ -155,8 +149,7 @@ export function call_signal(slug: string, username: string, signal: {
   targetUser: string;
   payload: string;
 }) {
-  console.log("call signal: ", signal);
-
+  
   const targetSocket = socketsManager.getSocketOfUser(
     slug,
     signal.targetUser

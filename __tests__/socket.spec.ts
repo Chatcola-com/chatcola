@@ -17,111 +17,156 @@
 |    You should have received a copy of the GNU Affero General Public License
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import Container from "typedi";
+
+import ActiveSocketsManager from "../src/application/socket/activeSockets";
+
 import router from "../src/application/socket/router";
 
-const sampleContext = {
-  name: "@andrzej",
-  slug: "dddddddddddddddddddd",
-};
-
 describe("Socket router", () => {
-  describe("Trivial messages", () => {
-    it('Should return a "pong" on "ping"', () => {
-      const response = router(
-        {
-          type: "ping",
-          data: {},
-        },
-        sampleContext
-      );
 
-      expect(response).toBeTruthy();
+  const sampleSlug = "23-23-23-23-23-23";
 
-      expect(response?.body).toEqual({ type: "pong", data: {} });
-      expect(response?.broadcast).not.toBeTruthy();
-    });
+  function getFakeSocket(username: string) {
+    return {
+      close: jest.fn(),
+      isOpen: jest.fn(() => true),
+      send: jest.fn(),
+      locals: {
+        name: username,
+        isInCall: false,
+        slug: sampleSlug
+      },
+    };
+  }
 
-    it('Should return a broadcast "stop_typing" and "start_typing" on receiving such event', () => {
-      const startTypingResponse = router(
-        {
-          type: "start_typing",
-          data: {},
-        },
-        sampleContext
-      );
+  function getSocketManager() {
+    const localSocketManager = new ActiveSocketsManager();
+    Container.set(ActiveSocketsManager, localSocketManager);
 
-      expect(startTypingResponse).toBeTruthy();
+    const sampleUsers = ["@andrzej", "@wieslaw", "@dagmara"];
+    const sampleSockets = sampleUsers.map(user => getFakeSocket(user));
+    const sampleContexts = sampleUsers.map(user => ({
+      name: user,
+      slug: sampleSlug
+    }));
 
-      expect(startTypingResponse?.body).toEqual({
+    sampleSockets.forEach(socket => localSocketManager.socketJoined(socket));
+
+    for(const i in sampleSockets) {
+      sampleSockets[i].send.mockClear();
+    }
+
+    return {
+      socketManager: localSocketManager,
+      sampleSockets,
+      sampleUsers,
+      sampleContexts
+    };
+  }
+
+  it('Should send a "pong" on "ping"', async () => {
+
+    const { 
+      socketManager,
+      sampleSockets,
+      sampleContexts,
+      sampleUsers
+    } = getSocketManager();
+
+    router(
+      {
+        type: "ping",
+        data: {},
+      },
+      sampleContexts[0]
+    );
+    
+    expect(sampleSockets[0].send).toHaveBeenCalledWith({ type: "pong", data: {} });
+
+    expect(sampleSockets[1].send).not.toHaveBeenCalled();
+    expect(sampleSockets[2].send).not.toHaveBeenCalled();
+    
+  });
+
+  it('Should broadcast "stop_typing" on receiving such event', async () => {
+
+    const { 
+      socketManager,
+      sampleSockets,
+      sampleContexts,
+      sampleUsers
+    } = getSocketManager();
+
+    router(
+      {
+        type: "start_typing",
+        data: {},
+      },
+      sampleContexts[0]
+    );
+
+    sampleSockets.forEach(socket => {
+      expect(socket.send).toHaveBeenCalledWith({
         type: "start_typing",
         data: {
-          userName: sampleContext.name,
+          userName: sampleContexts[0].name,
         },
-      });
-      expect(startTypingResponse?.broadcast).toBeTruthy();
+      })
+    });
 
-      const stopTypingResponse = router(
+  });
+
+  it(`Should broadcast "stop_typing" on receiving such event"`, async () => {
+      router(
         {
           type: "stop_typing",
           data: {},
         },
-        sampleContext
+        sampleContexts[0]
       );
+      
+      sampleSockets.forEach(socket => {
 
-      expect(stopTypingResponse).toBeTruthy();
-
-      expect(stopTypingResponse?.body).toEqual({
-        type: "stop_typing",
-        data: {
-          userName: sampleContext.name,
-        },
-      });
-      expect(stopTypingResponse?.broadcast).toBeTruthy();
-    });
-  });
-
-  describe('"message" event', () => {
-    it("Should emit back the message", () => {
-      const result = router(
-        {
-          type: "message",
+        expect(socket.send).toHaveBeenCalledWith({
+          type: "stop_typing",
           data: {
-            content: "hehehe",
+            userName: sampleContexts[0].name,
           },
+        })
+
+      });
+    })
+
+  })
+
+  it("Should emit back the message", () => {
+    router(
+      {
+        type: "message",
+        data: {
+          content: "hehehe",
         },
-        sampleContext
-      );
+      },
+      sampleContexts[0]
+    );
 
-      expect(result).toBeTruthy();
+    sampleSockets.forEach(socket => {
 
-      expect(result?.body).toMatchObject({
+      const calledWithEvent = socket.send.mock.calls[0][0];
+
+      const { _id, ...restOfEvent } = calledWithEvent;
+
+      expect(restOfEvent).toMatchObject({
         type: "message",
         data: {
           message: {
             content: "hehehe",
-            author: sampleContext.name,
+            author: sampleContexts[0].name,
           },
         },
       });
 
-      expect(typeof result?.body?.data?.message?._id).toEqual("string");
-      expect(result?.body?.data?.message?._id?.length).toBeGreaterThan(0);
-    });
-  });
+    })
 
-  describe("Various", () => {
-    it("Should throw an error when an unknown message type is passed", () => {
-      expect(() =>
-        router(
-          {
-            type: "dddddddddddddddd",
-            data: {
-              key: "value",
-            },
-          },
-          sampleContext
-        )
-      ).toThrowError();
-    });
-  });
 });

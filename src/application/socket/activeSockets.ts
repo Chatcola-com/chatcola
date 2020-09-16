@@ -98,13 +98,12 @@ export default class ActiveSocketsManager {
 
     publishToChatroom(slug: string, message: {[key: string]: any}) {
         this.activeSockets[slug]?.forEach( socket => {
-            console.log("sending to: ", slug)
             if(socket.isOpen())
                 socket.send(message);
         })
     }
 
     getSocketOfUser(slug: string, username: string): TChatroomSocket | undefined {
-        return this.activeSockets[slug].find(socket => socket.locals.name === username);
+        return this.activeSockets[slug]?.find(socket => socket.locals.name === username);
     }
 }
