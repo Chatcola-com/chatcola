@@ -20,96 +20,232 @@
 import Container from "typedi";
 
 import ActiveSocketsManager from "../src/application/socket/activeSockets";
+import { v4 as uuidv4 } from "uuid";
 
 import router from "../src/application/socket/router";
 
-describe("Socket router", () => {
+const socketManager = Container.get(ActiveSocketsManager);
 
-  describe("ActiveSocketsManager", () => {
 
-    function getFakeSocket(slug: string, name: string) {
-      return {
-        close: jest.fn(),
-        isOpen: jest.fn(() => true),
-        send: jest.fn(),
-        locals: {
-          slug,
-          name,
-          isInCall: false
-        }
-      }
-    }
+describe("The socket router", () => {
 
-    const socketManager = new ActiveSocketsManager();
+    it("Should emit back the message", () => {
 
-    const slug_1 = "2323232323";
-    const sockets_1 = [
-      getFakeSocket(slug_1, "andrzej"),
-      getFakeSocket(slug_1, "wieslaw"),
-      getFakeSocket(slug_1, "dominika"),        
-    ]
+      const {
+        sockets,
+        slug,
+        contexts
+      } = getMockedChatroomAndUsers();
+      
+      router(
+        {
+          type: "message",
+          data: {
+            content: "hehehe",
+          },
+        },
+        contexts[0]
+      );
 
-    for(const i in sockets_1) {
-      socketManager.socketJoined(sockets_1[i]);
-      sockets_1[i].send.mockClear();
-    }
+      sockets.forEach(socket => {
 
-    const slug_2 = "3434534345";
-    const sockets_2 = [
-      getFakeSocket(slug_2, "michal"),
-      getFakeSocket(slug_2, "przemek"),
-      getFakeSocket(slug_2, "piotrek"),        
-    ]
-
-    for(const i in sockets_2) {
-      socketManager.socketJoined(sockets_2[i]);
-      sockets_2[i].send.mockClear();
-    }
-
-    it("Should broadcast a message on publishToChatroom", () => {
-
-        socketManager.publishToChatroom(slug_1, {
-            "E": "F"
+        expect(socket.send).toHaveBeenCalledTimes(1);
+        
+        const calledWithEvent = socket.send.mock.calls[0][0];
+        const { _id, ...restOfEvent } = calledWithEvent;
+        expect(restOfEvent).toMatchObject({
+          type: "message",
+          data: {
+            message: {
+              content: "hehehe",
+              author: contexts[0].name,
+            },
+          },
         });
+      })
+  });
 
-        sockets_1.forEach(socket => {
-          expect(socket.send).toHaveBeenCalledWith({
-            "E": "F"
-          });
-        })
+  it("Should send back a ping", () => {
 
-        sockets_2.forEach(socket => {
-          expect(socket.send).not.toHaveBeenCalledWith({
-            "E": "F"
-          });
-        })
-    });
+    const {
+      sockets,
+      slug,
+      contexts
+    } = getMockedChatroomAndUsers();
 
-    it("Should return a socket of user of name if they didnt disconnect", () => {
+    router({
+      type: "ping",
+      data: {}
+    }, contexts[0]);
 
-      const socket = socketManager.getSocketOfUser(
-        slug_1, 
-        sockets_1[0].locals.name
-      );
+    expect(sockets[0].send).toHaveBeenCalledWith({
+      type: "pong",
+      data: {}
+    })
+    
+  })
 
-      expect(socket).toBeTruthy();
+  it("Should do nothing on unknown event", () => {
 
-      expect(
-        () => socket!.send({})
-      ).not.toThrowError();
-    });
+    const {
+      sockets,
+      slug,
+      contexts
+    } = getMockedChatroomAndUsers();
 
-    it("Should NOT return a socket of user of name if they disconnected", () => {
+    router({
+      type: "dudududududududuu im an unknown event",
+      data: {}
+    }, contexts[0]);
 
-      socketManager.socketLeft(sockets_1[0]);
+    expect(sockets[0].send).not.toHaveBeenCalled()
+    
+  })
 
-      const socket = socketManager.getSocketOfUser(
-        slug_1, 
-        sockets_1[0].locals.name
-      );
+  it("Should broadcast start_typing event", () => {
 
-      expect(socket).not.toBeTruthy();
-    });
+    const {
+      sockets,
+      slug,
+      contexts
+    } = getMockedChatroomAndUsers();
 
+    router({
+      type: "start_typing",
+      data: {}
+    }, contexts[0]);
+
+    sockets.forEach(socket => {
+      expect(socket.send).toHaveBeenCalledWith({
+        type: "start_typing",
+        data: {
+          userName: contexts[0].name
+        }
+      });
+    })
+    
+  })
+
+  it("Should broadcast stop_typing event", () => {
+
+    const {
+      sockets,
+      slug,
+      contexts
+    } = getMockedChatroomAndUsers();
+
+    router({
+      type: "stop_typing",
+      data: {}
+    }, contexts[0]);
+
+    sockets.forEach(socket => {
+      expect(socket.send).toHaveBeenCalledWith({
+        type: "stop_typing",
+        data: {
+          userName: contexts[0].name
+        }
+      });
+    })
+    
   })
 });
+
+describe("ActiveSocketsManager", () => {
+
+  const {
+    slug: slug_1,
+    sockets: sockets_1
+  } = getMockedChatroomAndUsers()
+
+  const {
+    slug: slug_2,
+    sockets: sockets_2
+  } = getMockedChatroomAndUsers();
+
+  it("Should broadcast a message on publishToChatroom", () => {
+
+      socketManager.publishToChatroom(slug_1, {
+          "E": "F"
+      });
+
+      sockets_1.forEach(socket => {
+        expect(socket.send).toHaveBeenCalledWith({
+          "E": "F"
+        });
+      })
+
+      sockets_2.forEach(socket => {
+        expect(socket.send).not.toHaveBeenCalledWith({
+          "E": "F"
+        });
+      })
+  });
+
+  it("Should return a socket of user of name if they didnt disconnect", () => {
+
+    const socket = socketManager.getSocketOfUser(
+      slug_1, 
+      sockets_1[0].locals.name
+    );
+
+    expect(socket).toBeTruthy();
+
+    expect(
+      () => socket!.send({})
+    ).not.toThrowError();
+  });
+
+  it("Should NOT return a socket of user of name if they disconnected", () => {
+
+    socketManager.socketLeft(sockets_1[0]);
+
+    const socket = socketManager.getSocketOfUser(
+      slug_1, 
+      sockets_1[0].locals.name
+    );
+
+    expect(socket).not.toBeTruthy();
+  });
+
+})
+
+
+
+function getMockedChatroomAndUsers() {
+
+  const slug = uuidv4();
+
+  const names = ["@andrzej", "@dominika", "@seba"];
+
+  const sockets = names.map(name => getFakeSocket(slug, name));
+  const contexts = names.map(name => ({name, slug}))
+
+  for(const i in sockets) {
+    socketManager.socketJoined(sockets[i]);
+  }
+
+  for(const i in sockets) {
+    sockets[i].send.mockClear();
+  }
+
+  return {
+    names,
+    sockets,
+    slug,
+    contexts
+  }
+}
+
+function getFakeSocket(slug: string, name: string) {
+  return {
+    close: jest.fn(),
+    isOpen: jest.fn(() => true),
+    send: jest.fn(),
+    locals: {
+      slug,
+      name,
+      isInCall: false
+    }
+  }
+}

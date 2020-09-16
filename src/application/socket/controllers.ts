@@ -30,31 +30,26 @@ const messageService = Container.get(MessageService);
 
 
 export function start_typing (slug: string, userName: string) {
-  const socket = socketsManager.getSocketOfUser(
+
+  socketsManager.publishToChatroom(
     slug,
-    userName
-  );
-  
-  socket?.send({
-    type: "start_typing",
-    data: {
-        userName
-    }
-  });
+    {
+      type: "start_typing",
+      data: {
+          userName
+      }
+    });
 }
   
 export function stop_typing (slug: string, userName: string) {
-  const socket = socketsManager.getSocketOfUser(
+  socketsManager.publishToChatroom(
     slug,
-    userName
-  );
-  
-  socket?.send({
-    type: "stop_typing",
-    data: {
-        userName
-    }
-  })
+    {
+      type: "stop_typing",
+      data: {
+          userName
+      }
+    });
 }
 
 export function whoami (slug: string, userName: string) {

@@ -52,10 +52,10 @@ export default function socketRouter(body: TParsedBody, context: TSocketContext)
     } catch ( error ) {
 
         if(
-            (error instanceof ZodError) ||
+            (error instanceof ZodError) || error.name.toLowerCase() === "zoderror" ||
             (error instanceof AppError && !error.shouldReport)
         ) {
-            console.error(`while receiving socket message: `, error, body, context);
+            console.log(`while receiving socket message: `, error, body, context);
             
             return null;
         }   
