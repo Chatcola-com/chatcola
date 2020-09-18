@@ -39,8 +39,9 @@ type TLogFunction = (message: string, ...meta: Array<any>) => any;
 */
 
 export interface IFileService {
-    readFile: (path: string) => Promise<string | null>;
-    writeFile: (path: string, content: string) => Promise<void>;
+    readFile: (namespace: string, name: string) => Promise<string | null>;
+    writeFile: (namespace: string, path: string, content: string) => Promise<void>;
+    eraseFile: (namespace: string, name: string) => Promise<void>;
 }
 
 /** / 

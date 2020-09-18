@@ -49,17 +49,22 @@ Container.set("logger", {
 });
 
 const fakeFileSystemXD: {
-    [path: string]: string
+    [filename: string]: string
 } = {};
 
 const fakeFileService: IFileService = {
-    async writeFile(path, content) {
-        fakeFileSystemXD[path] = content;
+    async writeFile(namespace, name, content) {
+        fakeFileSystemXD[`${namespace}-${name}`] = content;
     },
-    async readFile(path) {
-        return fakeFileSystemXD[path];
+    async readFile(namespace, name) {
+        return fakeFileSystemXD[`${namespace}-${name}`];
+    },
+    async eraseFile(namespace, name) {
+        delete fakeFileSystemXD[`${namespace}-${name}`];
     }
 }
+
+
 Container.set("fileService", fakeFileService)
 
 Container.set("alligatorFetcher", jest.fn(() => ({ success: true })));
