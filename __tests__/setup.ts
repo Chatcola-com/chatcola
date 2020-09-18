@@ -23,6 +23,7 @@ import { Container } from "typedi";
 import { EventEmitter } from "events";
 
 import resolveDatabase from "../src/infrastructure/db";
+import { IFileService } from "../src/types/infrastructure";
 
 Container.set("eventEmitter", new EventEmitter());
 
@@ -46,6 +47,20 @@ Container.set("logger", {
     error: console.error,
     warn: console.warn
 });
+
+const fakeFileSystemXD: {
+    [path: string]: string
+} = {};
+
+const fakeFileService: IFileService = {
+    async writeFile(path, content) {
+        fakeFileSystemXD[path] = content;
+    },
+    async readFile(path) {
+        return fakeFileSystemXD[path];
+    }
+}
+Container.set("fileService", fakeFileService)
 
 Container.set("alligatorFetcher", jest.fn(() => ({ success: true })));
 

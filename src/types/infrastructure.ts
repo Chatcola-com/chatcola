@@ -38,6 +38,15 @@ type TLogFunction = (message: string, ...meta: Array<any>) => any;
  * /------------------------------------------
 */
 
+export interface IFileService {
+    readFile: (path: string) => Promise<string | null>;
+    writeFile: (path: string, content: string) => Promise<void>;
+}
+
+/** / 
+ * /------------------------------------------
+*/
+
 
 export type TJobScheduler = {
     schedule: (cronString: string, fn: () => any) => any;

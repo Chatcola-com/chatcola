@@ -40,6 +40,7 @@ import getAlligatorWsConnector from "./alligatorWsConnector";
 
 import resolveInstanceAddress from "./instanceAddress";
 import runMigrations from "./migrations";
+import fileService from "./filesystem";
 
 const jwtSecret = initJwtSecret(keyValueStore);
 Container.set("jwtSecret", jwtSecret);
@@ -56,6 +57,7 @@ Container.set("eventEmitter", eventEmitter);
 Container.set("jobScheduler", jobScheduler);
 Container.set("errorTracker", errorTracker);
 
+Container.set("fileService", fileService);
 Container.set("keyValueStore", keyValueStore);
 
 Container.set("keyservice", new KeyService(keyValueStore));
