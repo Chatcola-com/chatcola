@@ -31,6 +31,7 @@ type TSocketContext = {
 
 export default function socketRouter(body: TParsedBody, context: TSocketContext) {
 
+
     try {
         const message = incomingMessageSchema.parse(body);
 
