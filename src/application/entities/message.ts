@@ -27,7 +27,9 @@ const messageSchema = zod.object({
     author: zod.string(),
     content: zod.string(),
 
-    attachmentName: zod.string().nonempty().optional().nullable()
+    attachment: zod.object({
+        name: zod.string().nonempty()
+    }).optional()
 })
 
 export type TMessage = zod.infer<typeof messageSchema>;
@@ -38,17 +40,26 @@ export default class Message {
     public slug: string;
     public author: string;
     public content: string;
-    public attachmentName?: string | null;
+    public attachment?: {
+        name: string;
+    }
     
     constructor(details: TMessage) {
         this._id = details._id;
         this.slug = details.slug;
         this.author = details.author;
         this.content = details.content;
-        this.attachmentName = details.attachmentName;
+        this.attachment = details.attachment;
     }
 
-    static createNew(details: { slug: string; author: string; content: string, attachmentName?: string | null }): Message {
+    static createNew(details: { 
+        slug: string;
+        author: string;
+        content: string,
+        attachment?: {
+            name: string;
+        } 
+}): Message {
         return new Message({
             ...details,
             _id: new mongoose.Types.ObjectId().toString()

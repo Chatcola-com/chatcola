@@ -43,6 +43,15 @@ describe("Messages service", () => {
         expect(indexOfOurMessage).toBeGreaterThanOrEqual(0);
     });
 
+    it("Should let you get a single message by its id", async () => {
+        const { _id } = await messageService.new(sampleMessage);
+
+        const foundMessage = await messageService.getOfId(_id);
+
+        expect(foundMessage).toBeTruthy();
+        expect(foundMessage).toMatchObject(sampleMessage);
+    });
+
     it("Should clear all chatroom's messages when requested", async () => {
         await messageService.new(sampleMessage);
 

@@ -53,6 +53,9 @@ const fakeFileSystemXD: {
 } = {};
 
 const fakeFileService: IFileService = {
+    init() {
+
+    },
     async writeFile(namespace, name, content) {
         fakeFileSystemXD[`${namespace}-${name}`] = content;
     },
@@ -63,8 +66,6 @@ const fakeFileService: IFileService = {
         delete fakeFileSystemXD[`${namespace}-${name}`];
     }
 }
-
-
 Container.set("fileService", fakeFileService)
 
 Container.set("alligatorFetcher", jest.fn(() => ({ success: true })));

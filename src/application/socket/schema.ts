@@ -39,7 +39,11 @@ export default zod.union([
     zod.object({
         type: zod.literal("message"),
         data: zod.object({
-            content: zod.string().nonempty()
+            content: zod.string(),
+            attachment: zod.object({
+                name: zod.string().nonempty(),
+                content: zod.string().nonempty()
+            }).optional()
         })
     }),
     zod.object({

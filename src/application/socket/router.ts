@@ -43,6 +43,7 @@ export default function socketRouter(body: TParsedBody, context: TSocketContext)
                 authorName: context.name,
                 slug: context.slug,
                 content: message.data.content,
+                attachment: message.data.attachment
             });
             case "join_call": return Controller.join_call(context.slug, context.name);
             case "leave_call": return Controller.leave_call(context.slug, context.name);
@@ -56,7 +57,7 @@ export default function socketRouter(body: TParsedBody, context: TSocketContext)
             (error instanceof ZodError) || error.name.toLowerCase() === "zoderror" ||
             (error instanceof AppError && !error.shouldReport)
         ) {
-            console.log(`while receiving socket message: `, error, body, context);
+            console.log(`while receiving socket message: `, error, JSON.stringify(body).substring(0, 200), context);
             
             return null;
         }   

@@ -31,6 +31,10 @@ export const justSlug = zod.object({
     slug: zod.string().nonempty()
 })
 
+export const getAttachment = zod.object({
+    messageId: zod.string().nonempty()
+})
+
 export const kickUser = zod.object({
     user_name: zod.string().nonempty()
 })

@@ -24,10 +24,11 @@ import ActiveSocketsManager from "./activeSockets";
 import MessageService from "../../application/message.service";
 
 import * as sendPushNotifications from "../resources/sendPushNotifications";
+import AttachmentsService from "../attachments.service";
 
 const socketsManager = Container.get(ActiveSocketsManager);
 const messageService = Container.get(MessageService);
-
+const attachmentsService = Container.get(AttachmentsService);
 
 export function start_typing (slug: string, userName: string) {
 
@@ -77,20 +78,29 @@ export function ping (slug: string, userName: string) {
     data: {}
   });
 }
-export function message ({ authorName, slug, content }: { 
+export async function message ({ authorName, slug, content, attachment }: { 
   authorName: string;
   slug: string;
   content: string;
+  attachment?: {
+    name: string;
+    content: string;
+  }
 }) {
 
-  const message = Message.createNew({
+  const message = await messageService.new({
     author: authorName,
     slug,
     content,
+    attachment: attachment ? {
+      name: attachment.name
+    } : undefined
   });
-
-  messageService.new(message);
   sendPushNotifications.aboutIncomingMessage(message);
+
+  if(attachment?.content)
+    attachmentsService
+      .saveMessageAttachment(message._id, attachment.content);
 
   socketsManager.publishToChatroom(
     slug,

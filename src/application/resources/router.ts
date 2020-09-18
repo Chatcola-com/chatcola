@@ -109,6 +109,18 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
 
             return await messages.getMessages(claims!.slug)
         };
+        case "/api/attachment": {
+
+            throwIfNoToken();
+
+            const { messageId } = resourcesSchema.getAttachment.parse(body);
+
+            return await messages.getMessageAttachment(
+                claims!.slug,
+                messageId
+            );
+
+        };
         case "/api/chatroom/basic": {
             
             throwIfNoToken();

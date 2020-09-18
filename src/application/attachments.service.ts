@@ -19,8 +19,11 @@
 */
 import { Inject, Service } from "typedi";
 import { IFileService } from "../types/infrastructure";
+import { AppError } from "../infrastructure/utils";
 
 const FILE_NAMESPACE = "attachment";
+
+const MAX_ATTTACHMENT_SIZE = 1024*1024*5; // this is LITERALLY 5 megabytes
 
 @Service()
 export default class AttachmentsService {
@@ -30,6 +33,12 @@ export default class AttachmentsService {
     ) {};
 
     async saveMessageAttachment(messageId: string, attachmentContent: string) {
+
+        if(attachmentContent.length > MAX_ATTTACHMENT_SIZE)
+            throw new AppError(`Attachment too large: received ${attachmentContent.length} bytes`, {
+                shouldReport: true
+            })
+
         await this.fileService.writeFile(FILE_NAMESPACE, messageId, attachmentContent);
     }
 
@@ -40,4 +49,5 @@ export default class AttachmentsService {
     async eraseAttachmentOfMessage(messageId: string): Promise<void> {
         await this.fileService.eraseFile(FILE_NAMESPACE, messageId);
     }
+
 }

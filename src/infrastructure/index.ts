@@ -78,6 +78,9 @@ Logger.info(`Successfuly initialized dependencies`);
 
 export default async function loadInfrastructure() {
 
+    fileService.init();
+    Logger.info(`Created/found received assets path!`);
+
     runMigrations(createBackup);
 
     const keyService = Container.get<IKeyService>("keyservice");

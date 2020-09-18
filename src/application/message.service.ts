@@ -38,7 +38,15 @@ export default class MessageService {
         return messages;
     }
 
-    async new (details: {slug: string; author: string; content: string}) {
+    async getOfId(targetId: string): Promise<TMessage | null> {
+        const message = await this.messageRepository.findOne({ _id: targetId })
+
+        return message;
+    }
+
+    async new (details: {slug: string; author: string; content: string, attachment?: {
+        name: string;
+    }}) {
         const message = Message.createNew(details);
         
         await this.messageRepository.save(message);

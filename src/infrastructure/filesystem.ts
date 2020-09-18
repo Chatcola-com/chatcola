@@ -19,30 +19,37 @@
 */
 import { IFileService } from "../types/infrastructure";
 
+import fsSync from "fs";
 import fs from "fs/promises";
 
 import config from "./config";
 import path from "path";
 
 
+const targetDir = path.resolve(config.assetsPath, "received");
+
+function getFilepath(namespace: string, name: string) {
+    return path.resolve(targetDir, `${namespace}-${name}`)
+}
+
 const fileService: IFileService = {
+    init() {
+        if(!fsSync.existsSync(targetDir))
+            fsSync.mkdirSync(targetDir);
+    },
     async readFile(namespace: string, name: string) {
         return fs.readFile(getFilepath(namespace, name), {
-            encoding: "base64"
+            encoding: "ascii"
         })
     },
     async writeFile(namespace: string, name: string, content: string) {
         return fs.writeFile(getFilepath(namespace, name), content, {
-            encoding: "base64"
+            encoding: "ascii"
         })
     },
     async eraseFile(namespace: string, name: string) {
         return fs.unlink(getFilepath(namespace, name));
     }
-}
-
-function getFilepath(namespace: string, name: string) {
-    return path.resolve(config.assetsPath, `${namespace}-${name}`)
 }
 
 export default fileService;
