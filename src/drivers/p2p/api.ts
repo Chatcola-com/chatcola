@@ -32,71 +32,60 @@ const Logger = Container.get<TLogger>("logger");
 
 export default function bootstrapRequestResponseDataChannel(channel: RTCDataChannel) {
 
-    channel.onmessage = async (event) => {
+    channel.onmessage = e => receiveChannelMessage(
+        e.data.toString(), 
+        async (completeMessage) => {
 
-        try {
-            const message = JSON.parse(event.data);
-
-            const requestId = actualStringSchema.parse(message.requestId);
-            const resourcePath = actualStringSchema.parse(message.resourcePath);
-            const context = resourcesSchema.requestContext.parse(message.context);
-
-            if(resourcePath.startsWith("/attachment")) {
-                await handleFileRequest({
-                    requestId,
-                    resourcePath,
-                    context
-                }, channel);
-            }
-            else if(resourcePath.startsWith("/api")) {
-                await handleResourceRequest({
-                    requestId,
-                    resourcePath,
-                    context,
-                    body: message.body
-                }, channel);
-            }
-        }
-        catch ( error ) {
-
-            console.error("while receiving message from p2p channel: ", error, event);
-
-            channel.send(JSON.stringify({
-                error
-            }))
-        }
-    }
-}
-
-async function handleResourceRequest(details: {
-    resourcePath: string;
-    requestId: string;
-    context: resourcesSchema.TRequestContext;
-    body: {[key: string]: any};
-}, channel: RTCDataChannel) {
-
-
-    const result = await router(
-        details.resourcePath,
-        details.body,
-        details.context
-    );
-
-    Logger.info(`Webrtc request ${details.resourcePath} -> ${
-        result.success ? `success` : `failed: ${result.error}`
-    }`)
-
-    channel.send(JSON.stringify({
-        requestId: details.requestId,
-        body: result
-    }))
-}
-
-async function handleFileRequest(details: {
-    context: resourcesSchema.TRequestContext;
-    resourcePath: string;
-    requestId: string;
-}, channel: RTCDataChannel) {
-
+            try {
+                const message = JSON.parse(completeMessage);
     
+                const requestId = actualStringSchema.parse(message.requestId);
+                const resourcePath = actualStringSchema.parse(message.resourcePath);
+                const context = resourcesSchema.requestContext.parse(message.context);
+    
+                const result = await router(
+                    resourcePath,
+                    message.body,
+                    context
+                );
+            
+                Logger.info(`Webrtc request ${resourcePath} -> ${
+                    result.success ? `success` : `failed: ${result.error}`
+                }`)
+            
+                channel.send(JSON.stringify({
+                    requestId: requestId,
+                    body: result
+                }))
+            }
+            catch ( error ) {
+    
+                console.error("while receiving message from p2p channel: ", error, completeMessage);
+    
+                channel.send(JSON.stringify({
+                    error
+                }))
+            }
+        }    
+    )
+}
+
+
+const enqueuedMessages: {
+    [transactionId: string]: string;
+} = {};
+
+
+function receiveChannelMessage(rawMessage: string, resolve: (m: string) => any) {
+    const message = JSON.parse(rawMessage);
+
+    if(!enqueuedMessages[message.transactionId])
+        enqueuedMessages[message.transactionId] = "";
+
+    enqueuedMessages[message.transactionId] += message.chunk;
+
+    if(message.isLast) {
+        resolve(enqueuedMessages[message.transactionId]);
+        delete enqueuedMessages[message.transacionId];
+    }
 }

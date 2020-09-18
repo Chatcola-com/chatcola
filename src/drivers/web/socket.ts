@@ -35,7 +35,8 @@ export default function websocketLoader(server: Server) {
 
     const wss = new Ws.Server({ 
         server,
-        verifyClient: authenticatePreSocket
+        verifyClient: authenticatePreSocket,
+        maxPayload: 1024 * 1024 * 5
     });
 
 
@@ -59,7 +60,7 @@ export default function websocketLoader(server: Server) {
 
         ws.on("close", () => {
             socketManager.socketLeft(interfacedChatroomSocket);
-        })
+        });
        
         ws.on("message", function(data) {
 

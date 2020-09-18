@@ -23,6 +23,8 @@ import {
 //@ts-ignore
 } from "wrtc";
 
+import { v4 as uuidv4 } from "uuid";
+
 import { Container } from "typedi";
 import { TAlligatorWsConnector } from "../../types/infrastructure";
 import config from "./config";
@@ -48,10 +50,19 @@ export default async function bootstrapP2PServer() {
 
         const pc: RTCPeerConnection = new _RTCPeerConnection({ iceServers: config.iceServers });
 
-        pc.ondatachannel = async ({ channel }) => {
+        //@ts-ignore
+        pc.ondatachannel = async ({ channel }: { channel: RTCDataChannel  }) => {
 
             if(channel.label === "dummy")
                 return;
+
+            //@ts-ignore
+            channel.__the_send = channel.send.bind(channel);
+            //@ts-ignore
+            channel.send = function(message) {
+                //@ts-ignore
+                chunkMessage(message).forEach(channel.__the_send)
+            }
 
             if(channel.label.split("-")[0] === "chatroomSocket") {
                 const chatroomToken = channel.label.substring(15)
@@ -147,4 +158,29 @@ async function awaitForChannelOpen(channel: RTCDataChannel) {
                 r(clearInterval(interval));
         }, 50);
     })
+}
+
+const MAX_CHUNK_SIZE=1024*15;
+
+function chunkMessage(message: string): string[] {
+
+    /**https://stackoverflow.com/users/763074/justin-warkentin ---> thanks! */
+    const numChunks = Math.ceil(message.length / MAX_CHUNK_SIZE)
+    const chunks = new Array(numChunks)
+
+    for (let i = 0, o = 0; i < numChunks; ++i, o += MAX_CHUNK_SIZE) {
+        chunks[i] = message.substr(o, MAX_CHUNK_SIZE)
+    }
+
+    const transactionId = uuidv4();
+
+    const result = chunks.map(chunk => ({
+        transactionId,
+        chunk,
+        isLast: false
+    }));
+
+    result[result.length - 1].isLast = true;
+
+    return result.map(chunk => JSON.stringify(chunk));
 }

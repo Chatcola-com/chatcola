@@ -62,7 +62,7 @@ export default async function bootstrapChatroomSocketDataChannel(channel: RTCDat
     );
 
     channel.onmessage = (e) => {
-        console.log(e.data.toString().length)
+
         const message = JSON.parse(e.data.toString());
 
         router(
