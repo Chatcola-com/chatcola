@@ -29,19 +29,25 @@ const socketManager = Container.get(ActiveSocketsManager);
 
 describe("The socket router", () => {
 
-    it("Should emit back the message", () => {
+    it("Should emit back the message", async () => {
 
       const {
         sockets,
         slug,
         contexts
       } = getMockedChatroomAndUsers();
+
+      const sampleAttachmentName = "232323232-23-23--345-354-345-453.png";
       
-      router(
+      await router(
         {
           type: "message",
           data: {
             content: "hehehe",
+            attachment: {
+              name: sampleAttachmentName,
+              content: "238948349589304589034589034486984596084590684589834898590348"
+            }
           },
         },
         contexts[0]
@@ -59,6 +65,9 @@ describe("The socket router", () => {
             message: {
               content: "hehehe",
               author: contexts[0].name,
+              attachment: {
+                name: sampleAttachmentName
+              }
             },
           },
         });
