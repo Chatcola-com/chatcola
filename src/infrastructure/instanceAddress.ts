@@ -33,7 +33,12 @@ export default function resolveInstanceAddress(keyValueStore: TKeyValueStore): s
 
     const wantsToReset = process.argv.includes("--resetAddress");
 
-    if(wantsToReset || !persistedInstanceAddress) {
+    if(process.env.THIS_INSTANCE_ADDRESS) {
+        persistInstanceAddress(keyValueStore, process.env.THIS_INSTANCE_ADDRESS);
+
+        return process.env.THIS_INSTANCE_ADDRESS;
+    }
+    else if(wantsToReset || !persistedInstanceAddress) {
         const instanceAddress = askForInstanceAddress();
 
         persistInstanceAddress(keyValueStore, instanceAddress);

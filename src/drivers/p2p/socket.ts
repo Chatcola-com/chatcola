@@ -63,13 +63,15 @@ export default async function bootstrapChatroomSocketDataChannel(channel: RTCDat
 
     channel.onmessage = (e) => {
 
-        const message = JSON.parse(e.data.toString());
+        receiveChannelMessage(e.data.toString(), completeMessage => {
+            const message = JSON.parse(completeMessage);
 
-        router(
-            message,
-            //@ts-ignore
-            channel.locals
-        )
+            router(
+                message,
+                //@ts-ignore
+                channel.locals
+            )
+        })
     }
 }
 
@@ -89,4 +91,23 @@ async function awaitChannelOpen(channel: RTCDataChannel) {
             }
         }, 100);
     })
+}
+
+const enqueuedMessages: {
+    [transactionId: string]: string;
+} = {};
+
+
+function receiveChannelMessage(rawMessage: string, resolve: (m: string) => any) {
+    const message = JSON.parse(rawMessage);
+
+    if(!enqueuedMessages[message.transactionId])
+        enqueuedMessages[message.transactionId] = "";
+
+    enqueuedMessages[message.transactionId] += message.chunk;
+
+    if(message.isLast) {
+        resolve(enqueuedMessages[message.transactionId]);
+        delete enqueuedMessages[message.transacionId];
+    }
 }
