@@ -19,7 +19,6 @@
 */
 import { Container } from "typedi";
 
-import Message from "../entities/message";
 import ActiveSocketsManager from "./activeSockets";
 import MessageService from "../../application/message.service";
 
