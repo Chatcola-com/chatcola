@@ -9,9 +9,11 @@ OUTPUT_DIR=./build/
 
 mkdir -p $OUTPUT_DIR
 
-
-./node_modules/.bin/tsc
-
+if [ $NODE_ENV = staging ]
+then ./node_modules/.bin/ncc build src/drivers/web/index.ts -o $OUTPUT_DIR
+else
+    ./node_modules/.bin/tsc
+fi
 
 cp LICENSE.md src/third-party-licenses.json ecosystem.config.js $OUTPUT_DIR
 

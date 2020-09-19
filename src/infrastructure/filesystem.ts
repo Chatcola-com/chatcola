@@ -48,7 +48,7 @@ const fileService: IFileService = {
         })
     },
     async eraseFile(namespace: string, name: string) {
-        return fs.unlink(getFilepath(namespace, name));
+        return fs.unlink(getFilepath(namespace, name)).catch();
     }
 }
 
