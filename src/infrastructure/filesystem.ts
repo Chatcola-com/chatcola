@@ -52,4 +52,24 @@ const fileService: IFileService = {
     }
 }
 
+const fakeFileSystemXD: {
+    [filename: string]: string
+} = {};
+
+export const inMemoryFileService: IFileService = {
+    init() {
+
+    },
+    async writeFile(namespace, name, content) {
+        fakeFileSystemXD[`${namespace}-${name}`] = content;
+    },
+    async readFile(namespace, name) {
+        return fakeFileSystemXD[`${namespace}-${name}`];
+    },
+    async eraseFile(namespace, name) {
+        delete fakeFileSystemXD[`${namespace}-${name}`];
+    }
+}
+
+
 export default fileService;

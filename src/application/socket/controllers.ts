@@ -24,11 +24,9 @@ import ActiveSocketsManager from "./activeSockets";
 import MessageService from "../../application/message.service";
 
 import * as sendPushNotifications from "../resources/sendPushNotifications";
-import AttachmentsService from "../attachments.service";
 
 const socketsManager = Container.get(ActiveSocketsManager);
 const messageService = Container.get(MessageService);
-const attachmentsService = Container.get(AttachmentsService);
 
 export function start_typing (slug: string, userName: string) {
 
@@ -92,15 +90,10 @@ export async function message ({ authorName, slug, content, attachment }: {
     author: authorName,
     slug,
     content,
-    attachment: attachment ? {
-      name: attachment.name
-    } : undefined
+    attachment
   });
   sendPushNotifications.aboutIncomingMessage(message);
 
-  if(attachment?.content)
-    attachmentsService
-      .saveMessageAttachment(message._id, attachment.content);
 
   socketsManager.publishToChatroom(
     slug,

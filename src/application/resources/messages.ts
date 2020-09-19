@@ -20,10 +20,8 @@
 import { Container } from "typedi";
 
 import MessageService from "../message.service";
-import AttachmentsService from "../attachments.service";
 
 const messageService = Container.get(MessageService);
-const attachmentsService = Container.get(AttachmentsService);
 
 export async function getMessages(slug: string) {
 
@@ -47,7 +45,7 @@ export async function getMessageAttachment(slug: string, messageId: string) {
             data: {}
         }
 
-    const content = await attachmentsService.getAttachmentOfMessage(messageId);
+    const content = await messageService.getAttachmentOfMessage(messageId);
 
     return {
         success: true,

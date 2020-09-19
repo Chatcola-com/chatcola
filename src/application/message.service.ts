@@ -17,18 +17,34 @@
 |    You should have received a copy of the GNU Affero General Public License
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import  { Service, Inject } from "typedi";
+import { Inject, Service } from "typedi";
+import { AppError } from "../infrastructure/utils";
 
 
 import Message, { TMessage } from "./entities/message";
-import { TMessageRepository } from "../types/infrastructure";
+import { IFileService, TMessageRepository } from "../types/infrastructure";
+
+
+const FILE_NAMESPACE = "attachment";
+
+const MAX_ATTTACHMENT_SIZE = 1024*1024*5; // this is LITERALLY 5 megabytes
+
 
 @Service()
 export default class MessageService {
 
     constructor(
-        @Inject("messageRepository") private messageRepository: TMessageRepository
+        @Inject("messageRepository") private messageRepository: TMessageRepository,
+        @Inject("fileService") private fileService: IFileService
     ) {};
+
+    async getAttachmentOfMessage(messageId: string): Promise<string | null> {
+        return await this.fileService.readFile(FILE_NAMESPACE, messageId);
+    }
+
+    async eraseAttachmentOfMessage(messageId: string): Promise<void> {
+        await this.fileService.eraseFile(FILE_NAMESPACE, messageId);
+    }
 
     async get (slug: string): Promise< Array<TMessage> > {
         const messages = await this.messageRepository.find({ slug });
@@ -46,10 +62,29 @@ export default class MessageService {
 
     async new (details: {slug: string; author: string; content: string, attachment?: {
         name: string;
+        content: string;
     }}) {
-        const message = Message.createNew(details);
+
+        const { attachment, ...messageDetails } = details;
+
+        const message = Message.createNew({
+            ...messageDetails,
+            attachment: attachment ? {
+                name: attachment.name
+            } : undefined
+        });
         
         await this.messageRepository.save(message);
+
+        if(attachment) {
+            if(attachment.content.length > MAX_ATTTACHMENT_SIZE)
+                throw new AppError(`Attachment too large: received ${attachment.content.length} bytes`, {
+                    shouldReport: true
+                });
+
+            await this.fileService.writeFile(FILE_NAMESPACE, message._id, attachment.content);
+        }
+       
         
         return message;
     }
@@ -58,6 +93,14 @@ export default class MessageService {
         const yesterdayThisTime = new Date( Date.now() );
         yesterdayThisTime.setDate( yesterdayThisTime.getDate() - 1 );
         
+        const results = await this.messageRepository.find({
+            createdAt: {
+                $lte: yesterdayThisTime
+            }
+        });
+
+        await this.deleteAtachmentsOfMessages(results);
+
         await this.messageRepository.deleteMany({
             createdAt: {
                 $lte: yesterdayThisTime
@@ -66,17 +109,41 @@ export default class MessageService {
     }
 
     async clearAll (slug: string): Promise<number> {
-        const result = await this.messageRepository.deleteMany({ slug });
-    
-        return result?.deletedCount || 0;
+        const targetMessages = await this.messageRepository.find({ slug });
+
+        await this.deleteAtachmentsOfMessages(targetMessages);
+
+        const deletionResult = await this.messageRepository.deleteMany({ slug });
+
+        return deletionResult?.deletedCount || 0;
     }
 
     async clearOfUser(slug: string, user_name: string): Promise<number> {
-        const result = await this.messageRepository.deleteMany({ 
+        const targetMessages = await this.messageRepository.find({ 
             slug, 
             author: user_name
         });
-    
-        return result?.deletedCount || 0;
+
+        await this.deleteAtachmentsOfMessages(targetMessages);
+
+        const deletionResult = await this.messageRepository.deleteMany({ 
+            slug, 
+            author: user_name
+        });
+
+        return deletionResult?.deletedCount || 0;
+    }
+
+    private async deleteAtachmentsOfMessages(messages: Message[]) {
+        const attachmentIds: string[] = [];
+
+        for(const i in messages) {
+            if(messages[i].attachment)
+                attachmentIds.push(messages[i]._id);
+        }
+
+        await Promise.all(attachmentIds.map(((id: string) => {
+            return this.eraseAttachmentOfMessage(id);
+        }).bind(this)));
     }
 }

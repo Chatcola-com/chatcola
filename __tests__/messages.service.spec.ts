@@ -97,4 +97,107 @@ describe("Messages service", () => {
         expect(countOfNotTargettedUsersMessages).not.toEqual(0);
     });
 
+    describe("Attachments", () => {
+
+        const sampleAttachment = {
+            name: "hehe.jpg",
+            content: "10"
+        };
+
+        it("Should save and provide attachment upon message creation", async () => {
+
+            const message = await messageService.new({
+                ...sampleMessage,
+                attachment: sampleAttachment
+            });
+
+            const retrievedMessage = await messageService.getOfId(message._id);
+
+            expect(retrievedMessage?.attachment).toEqual({
+                name: sampleAttachment.name
+            })
+
+            const retrievedAttachment = await messageService.getAttachmentOfMessage(
+                message._id
+            );
+
+            expect(retrievedAttachment).toBeTruthy();
+            expect(retrievedAttachment).toEqual(sampleAttachment.content);
+        })
+
+
+        it("Should delete associated attachments upon user's message deletion", async () => {
+
+            const notTargettedUserName = "Piotr";
+            const targettedUserName = "Andrzej";
+
+            const [message1, message2] = await Promise.all([
+                messageService.new({
+                    ...sampleMessage,
+                    author: targettedUserName,
+                    attachment: {
+                        name: "hehehe.jpeg",
+                        content: "010101010010101010101010010101010"
+                    }
+                }),
+                messageService.new({
+                    ...sampleMessage,
+                    author: notTargettedUserName,
+                    attachment: {
+                        name: "matura.pdf",
+                        content: "23848348589347858934758934745893345"
+                    }
+                })
+            ]);
+
+            await messageService.clearOfUser(
+                sampleMessage.slug, 
+                targettedUserName
+            );
+
+            expect(
+                await messageService.getAttachmentOfMessage(
+                    message1._id
+                )
+            ).not.toBeTruthy(); 
+
+            expect(
+                await messageService.getAttachmentOfMessage(
+                    message2._id
+                )
+            ).toBeTruthy();
+
+        });
+
+        it("Should delete all attachments upon all messages deletion", async () => {
+
+            const [message1, message2] = await Promise.all([
+                messageService.new({
+                    ...sampleMessage,
+                    attachment: sampleAttachment
+                }),
+                messageService.new({
+                    ...sampleMessage,
+                    attachment: sampleAttachment
+                })
+            ]);
+
+            await messageService.clearAll(sampleMessage.slug);
+
+            expect(
+                await messageService.getAttachmentOfMessage(
+                    message1._id
+                )
+            ).not.toBeTruthy(); 
+
+            expect(
+                await messageService.getAttachmentOfMessage(
+                    message2._id
+                )
+            ).not.toBeTruthy();
+
+        });
+
+    });
+
 })
