@@ -1,6 +1,6 @@
 {
   "name": "chatcola-server",
-  "version": "3.0.6",
+  "version": "3.1.6",
   "main": "build/p2p/index.js",
   "bin": {
     "chatcola-server-http": "./build/drivers/web/index.js",
