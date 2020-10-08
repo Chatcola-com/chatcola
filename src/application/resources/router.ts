@@ -113,12 +113,16 @@ async function resourceRouter(resourcePath: string, body: {[key: string]: any}, 
 
             throwIfNoToken();
 
-            const { messageId } = resourcesSchema.getAttachment.parse(body);
+            throw new AppError(`Unimplemented`, {
+                shouldReport: true
+            });
+
+            /*const { messageId } = resourcesSchema.getAttachment.parse(body);
 
             return await messages.getMessageAttachment(
                 claims!.slug,
                 messageId
-            );
+            );*/
 
         };
         case "/api/chatroom/basic": {

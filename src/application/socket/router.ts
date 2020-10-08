@@ -43,7 +43,9 @@ export default function socketRouter(body: TParsedBody, context: TSocketContext)
                 authorName: context.name,
                 slug: context.slug,
                 content: message.data.content,
-                attachment: message.data.attachment
+                // TODO when figured out attachment security include
+                // attachment: message.data.attachment
+                // to turn on attachments
             });
             case "join_call": return Controller.join_call(context.slug, context.name);
             case "leave_call": return Controller.leave_call(context.slug, context.name);

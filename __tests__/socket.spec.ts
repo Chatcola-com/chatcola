@@ -44,6 +44,44 @@ describe("The socket router", () => {
           type: "message",
           data: {
             content: "hehehe",
+          },
+        },
+        contexts[0]
+      );
+
+      sockets.forEach(socket => {
+
+        expect(socket.send).toHaveBeenCalledTimes(1);
+        
+        const calledWithEvent = socket.send.mock.calls[0][0];
+        const { _id, ...restOfEvent } = calledWithEvent;
+        expect(restOfEvent).toMatchObject({
+          type: "message",
+          data: {
+            message: {
+              content: "hehehe",
+              author: contexts[0].name,
+            },
+          },
+        });
+      })
+  });
+
+  it.skip("Should emit back the message", async () => {
+
+      const {
+        sockets,
+        slug,
+        contexts
+      } = getMockedChatroomAndUsers();
+
+      const sampleAttachmentName = "232323232-23-23--345-354-345-453.png";
+      
+      await router(
+        {
+          type: "message",
+          data: {
+            content: "hehehe",
             attachment: {
               name: sampleAttachmentName,
               content: "238948349589304589034589034486984596084590684589834898590348"
