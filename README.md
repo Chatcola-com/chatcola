@@ -27,6 +27,14 @@ This repository hosts the chatcola server needed to self-host reliance and stora
 
 # Getting started
 
+
+## With docker (the easier way)
+
+* run `docker install chatcola/chatcola`
+* run `docker run -e THIS_INSTANCE_ADDRESS={{your instance address here}}`
+
+## Without docker
+
 * Install node.js 14: 
   
   Linux / MacOS:
