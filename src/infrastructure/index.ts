@@ -25,7 +25,6 @@ import config from "./config";
 import Logger from "./logs/logger";
 import eventEmitter from "./emitter";
 import jobScheduler from "./jobs";
-import errorTracker from "./logs/sentry";
 
 import { alligatorFetcher } from "./fetcher";
 
@@ -57,7 +56,6 @@ Container.set("THIS_INSTANCE_ADDRESS", THIS_INSTANCE_ADDRESS);
 Container.set("logger", Logger);
 Container.set("eventEmitter", eventEmitter);
 Container.set("jobScheduler", jobScheduler);
-Container.set("errorTracker", errorTracker);
 
 Container.set("fileService", memoryMode ? inMemoryFileService : fileService);
 Container.set("keyValueStore", keyValueStore);

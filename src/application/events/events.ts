@@ -19,4 +19,5 @@
 */
 export default {
     NEW_CHATROOM: "chatrooms:new",
+    USER_JOINED_CHATROOM: "chatrooms:user-joined"
 }

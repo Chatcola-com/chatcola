@@ -122,13 +122,6 @@ export type TAlligatorWsConnector = {
 
 /** / 
  * /------------------------------------------
-*/
-
-export type TErrorTracker = {
-    submit: (err: any) => Promise<void>;
-}
-/** / 
- * /------------------------------------------
  */
 
 export interface IKeyService {

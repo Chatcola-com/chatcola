@@ -18,18 +18,22 @@
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 import jwt from "jsonwebtoken";
+import { EventEmitter } from "events";
 
 import { Container, Service, Inject } from "typedi";
+
 import { TUserCredentials, TAdminCredentials, ITokenClaims, TUserTokenClaims, TAdminTokenClaims } from "../types/auth";
 import { AppError } from "../infrastructure/utils";
 
 import { TChatroomRepository } from "../types/infrastructure";
+import events from "./events/events";
 
 @Service()
 export default class AuthService {
 
     constructor(
-        @Inject("chatroomRepository") private chatroomRepository: TChatroomRepository
+        @Inject("chatroomRepository") private chatroomRepository: TChatroomRepository,
+        @Inject("eventEmitter") private eventEmitter: EventEmitter
     ) {};
 
     async login({ slug, ...credentials }: TUserCredentials) {
@@ -55,6 +59,8 @@ export default class AuthService {
             throw new AppError("Chatroom full");
 
         await this.chatroomRepository.persist(chatroom);
+
+        this.eventEmitter.emit(events.USER_JOINED_CHATROOM);
 
         return await signToken({ 
             slug, 

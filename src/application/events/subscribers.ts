@@ -38,4 +38,14 @@ export default () => {
         keyValueStore.setItem("CHATROOM_COUNT", chatroomCount + 1);
     });
 
+    emitter.on(events.USER_JOINED_CHATROOM, async () => {
+
+        let userCount = keyValueStore.getItem("USER_COUNT");
+
+        if((typeof userCount) !== "number")
+        userCount = 0;
+
+        keyValueStore.setItem("USER_COUNT", userCount + 1);
+    })
+
 }

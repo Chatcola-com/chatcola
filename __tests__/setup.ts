@@ -27,9 +27,6 @@ import { inMemoryFileService } from "../src/infrastructure/filesystem";
 
 Container.set("eventEmitter", new EventEmitter());
 
-Container.set("errorTracker", {
-    submit: jest.fn()
-})
 
 Container.set("THIS_INSTANCE_ADDRESS", "dummyhost:202020");
 
