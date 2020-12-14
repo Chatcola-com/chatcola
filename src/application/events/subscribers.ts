@@ -43,9 +43,19 @@ export default () => {
         let userCount = keyValueStore.getItem("USER_COUNT");
 
         if((typeof userCount) !== "number")
-        userCount = 0;
+            userCount = 0;
 
         keyValueStore.setItem("USER_COUNT", userCount + 1);
+    });
+
+    emitter.on(events.NEW_MESSAGE, () => {
+
+        let messageCount = keyValueStore.getItem("MESSAGE_COUNT");
+
+        if((typeof messageCount) !== "number")
+            messageCount = 0;
+
+        keyValueStore.setItem("MESSAGE_COUNT", messageCount + 1);
     })
 
 }

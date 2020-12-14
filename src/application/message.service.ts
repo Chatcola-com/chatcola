@@ -18,11 +18,13 @@
 |    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 import { Inject, Service } from "typedi";
+import { EventEmitter } from "events";
 import { AppError } from "../infrastructure/utils";
 
 
 import Message, { TMessage } from "./entities/message";
 import { IFileService, TMessageRepository } from "../types/infrastructure";
+import events from "./events/events";
 
 
 const FILE_NAMESPACE = "attachment";
@@ -35,7 +37,8 @@ export default class MessageService {
 
     constructor(
         @Inject("messageRepository") private messageRepository: TMessageRepository,
-        @Inject("fileService") private fileService: IFileService
+        @Inject("fileService") private fileService: IFileService,
+        @Inject("eventEmitter") private eventEmitter: EventEmitter
     ) {};
 
     async getAttachmentOfMessage(messageId: string): Promise<string | null> {
@@ -73,6 +76,8 @@ export default class MessageService {
                 name: attachment.name
             } : undefined
         });
+
+        this.eventEmitter.emit(events.NEW_MESSAGE);
         
         await this.messageRepository.save(message);
 

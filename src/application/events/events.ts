@@ -19,5 +19,6 @@
 */
 export default {
     NEW_CHATROOM: "chatrooms:new",
-    USER_JOINED_CHATROOM: "chatrooms:user-joined"
+    USER_JOINED_CHATROOM: "chatrooms:user-joined",
+    NEW_MESSAGE: "messages:new"
 }
